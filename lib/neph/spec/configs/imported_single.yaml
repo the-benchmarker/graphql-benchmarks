@@ -1,0 +1,3 @@
+imported_single:
+  commands:
+    - echo "OK from imported_single"

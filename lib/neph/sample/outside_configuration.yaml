@@ -1,0 +1,4 @@
+outside_job:
+  commands:
+    - echo "This is outside job!!"
+    - sleep 0.2

@@ -1,0 +1,25 @@
+main:
+  depends_on:
+    - man
+    - binary
+
+binary:
+  commands:
+    - shards build --release
+  src:
+    - src/**/*.cr
+
+test:
+  commands:
+    - crystal spec
+
+man:
+  ignore_error: true
+  commands:
+    - go-md2man -in neph.1.md -out neph.1
+
+clean:
+  commands:
+    - rm -f bin/neph
+    - rm -f neph.1
+    - rm -fd bin

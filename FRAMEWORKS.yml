@@ -1,0 +1,20 @@
+ruby:
+  agoo:
+    website: github.com/ohler55/agoo
+    version: "2.8"
+    language: "2.6"
+node:
+python:
+php:
+nim:
+go:
+swift:
+cpp:
+scala:
+csharp:
+java:
+c:
+  agoo-c:
+    website: github.com/ohler55/agoo-c
+    version: "0.4"
+    language: "11"

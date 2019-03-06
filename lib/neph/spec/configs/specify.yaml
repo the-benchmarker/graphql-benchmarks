@@ -1,0 +1,10 @@
+
+specify0:
+  commands:
+    - echo "OK"
+  depends_on:
+    specify1
+
+specify1:
+  commands:
+    - echo "OK"

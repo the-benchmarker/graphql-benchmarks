@@ -1,0 +1,17 @@
+Sending build context to Docker daemon   5.12kB
+Step 1/5 : FROM ruby:2.6.1
+ ---> 616c3cf5968b
+Step 2/5 : WORKDIR /usr/src/app
+ ---> Using cache
+ ---> 465546bc0e2b
+Step 3/5 : COPY Gemfile app.rb ./
+ ---> Using cache
+ ---> 4ed3ba816f4e
+Step 4/5 : RUN bundle install
+ ---> Using cache
+ ---> 74aec4816826
+Step 5/5 : CMD AGOO_WORKER_COUNT=$(nproc) ruby app.rb
+ ---> Using cache
+ ---> c21a3a88e6c4
+Successfully built c21a3a88e6c4
+Successfully tagged agoo:latest

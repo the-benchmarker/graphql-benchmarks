@@ -20,5 +20,15 @@ describe "get on /graphql?query={hello}" do
   remote_ip = get_ip(name)
   r = HTTP::Client.get "http://#{remote_ip}:3000/graphql?query={hello}"
   it "should reply with a 200 status code" { r.status_code.should eq 200 }
-  it "should return <0>" { r.body.should eq %|{"data":{"hello":"Hello"}}| }
+  it %|should return {"data":{"hello":"Hello"}}| { r.body.should eq %|{"data":{"hello":"Hello"}}| }
+end
+
+describe "post on /graphql" do
+  name = ENV["FRAMEWORK"]
+  body = %|mutation { repeat(word: "One") }|
+  headers = HTTP::Headers { "Content-Type" => "application/graphql" }
+  remote_ip = get_ip(name)
+  r = HTTP::Client.post("http://#{remote_ip}:3000/graphql", headers: headers, body: body)
+  it "should reply with a 200" { r.status_code.should eq 200 }
+  it %|should rerturn {"data":{"repeat":"One"}}| { r.body.should eq %|{"data":{"repeat":"One"}}| }
 end

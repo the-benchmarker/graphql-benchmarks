@@ -139,7 +139,7 @@ def benchmark(host, threads, connections, duration, target, store) : Filter
   parser = JSON::PullParser.new(raw)
   results = Hash(String, Hash(String, Float64)).new(parser)
 
-  ["/", "/user/0"].each do |route|
+  ["/", "/graphql?query={hello}"].each do |route|
     raw = `#{CLIENT} --duration #{duration} --connections #{connections.to_i.to_s} --threads #{threads} --url http://#{host}:3000#{route}`
     result = Result.from_json(raw)
     parser = JSON::PullParser.new(raw)
@@ -151,7 +151,9 @@ def benchmark(host, threads, connections, duration, target, store) : Filter
     latency = latency + result.percentile.fifty
   end
 
-  ["/user"].each do |route|
+# TBD need to pass a body to the client which should pass it on to wrk
+
+  ["/graphql"].each do |route|
     raw = `#{CLIENT} --method POST --duration #{duration} --connections #{connections.to_i.to_s} --threads #{threads} --url http://#{host}:3000#{route}`
     result = Result.from_json(raw)
     parser = JSON::PullParser.new(raw)

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'etc'
 require 'agoo'
 
 Agoo::Log.configure(dir: '',
@@ -16,8 +17,7 @@ Agoo::Log.configure(dir: '',
                       push: false
                     })
 
-worker_count = 4
-worker_count = ENV['AGOO_WORKER_COUNT'].to_i if ENV.key?('AGOO_WORKER_COUNT')
+worker_count = Etc.nprocessors() * 3
 Agoo::Server.init(3000, '.', thread_count: 1, worker_count: worker_count, graphql: '/graphql')
 
 # Empty response.

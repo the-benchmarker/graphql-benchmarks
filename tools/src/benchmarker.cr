@@ -125,33 +125,68 @@ class Percentile
   )
 end
 
+# Latency tends to vary significantly not only rnadomly but according to the
+# load. A typical latency versus throughput curve starts at some low-load
+# value and stays pretty flat in the normal load region until some inflection
+# point. At the inflection point until the maximum throughput the latency
+# increases.
+#
+# |                                                                  *
+# |                                                              ****
+# |                                                          ****
+# |                                                      ****
+# |******************************************************
+# +---------------------------------------------------------------------
+#  ^               \             /                       ^           ^
+#  low-load          normal-load                         inflection  max
+#
+# These benchmarks show the normal-load latency as that is what most users
+# will see when using a service. Most deployments do not run at near max
+# throughput but try to stay in the normal-load are but are prepared for spike
+# in usage.
+
 # Benchmark
 # server : server context
 # threads : number of thread to launch simultaneously
-# connections : number of opened connections per thread
+# connections : number of opened connections across all threads
 # target : target
 # store : in-memory storage used for results
 def benchmark(host, threads, connections, duration, target, store) : Filter
   latency = 0.0
   requests = 0.0
+  #threads = 1
+  #connections = connections.to_i / threads
   raw = `#{CLIENT} --url http://#{host}:3000 --init`
   result = Result.from_json(raw)
   parser = JSON::PullParser.new(raw)
   results = Hash(String, Hash(String, Float64)).new(parser)
-
   ["/", "/graphql?query={hello}"].each do |route|
     raw = `#{CLIENT} --duration #{duration} --connections #{connections.to_i.to_s} --threads #{threads} --url http://#{host}:3000#{route}`
+    #raw = `perfer -d #{duration} -c #{connections.to_s} -t #{threads.to_s} -j -k http://#{host}:3000#{route}`
+    #puts raw
     result = Result.from_json(raw)
     parser = JSON::PullParser.new(raw)
     data = Hash(String, Hash(String, Float64)).new(parser)
     data.each do |key, metrics|
+      next if key == "latency" || key == "percentile"
       results[key].merge!(metrics) { |_, v1, v2| v1 + (v2/3) }
     end
     requests = requests + result.request.per_second
-    latency = latency + result.percentile.fifty
+    #latency = latency + result.percentile.fifty
   end
 
-# TBD need to pass a body to the client which should pass it on to wrk
+  ["/", "/graphql?query={hello}"].each do |route|
+    raw = `#{CLIENT} --duration #{duration} --connections 1 --threads 1 --url http://#{host}:3000#{route}`
+    #raw = `perfer -d #{duration} -c 1 -t 1 -j -k http://#{host}:3000#{route}`
+    result = Result.from_json(raw)
+    parser = JSON::PullParser.new(raw)
+    data = Hash(String, Hash(String, Float64)).new(parser)
+    data.each do |key, metrics|
+      next unless key == "latency" || key == "percentile"
+      results[key].merge!(metrics) { |_, v1, v2| v1 + (v2/3) }
+    end
+    latency = latency + result.percentile.fifty
+  end
 
   ["/graphql"].each do |route|
     raw = `#{CLIENT} --method POST --duration #{duration} --connections #{connections.to_i.to_s} --threads #{threads} --url http://#{host}:3000#{route}`
@@ -159,9 +194,22 @@ def benchmark(host, threads, connections, duration, target, store) : Filter
     parser = JSON::PullParser.new(raw)
     data = Hash(String, Hash(String, Float64)).new(parser)
     data.each do |key, metrics|
+      next if key == "latency" || key == "percentile"
       results[key].merge!(metrics) { |_, v1, v2| v1 + (v2/3) }
     end
     requests = requests + result.request.per_second
+    #latency = latency + result.percentile.fifty
+  end
+
+  ["/graphql"].each do |route|
+    raw = `#{CLIENT} --method POST --duration #{duration} --connections 1 --threads 1 --url http://#{host}:3000#{route}`
+    result = Result.from_json(raw)
+    parser = JSON::PullParser.new(raw)
+    data = Hash(String, Hash(String, Float64)).new(parser)
+    data.each do |key, metrics|
+      next unless key == "latency" || key == "percentile"
+      results[key].merge!(metrics) { |_, v1, v2| v1 + (v2/3) }
+    end
     latency = latency + result.percentile.fifty
   end
 

@@ -1,6 +1,6 @@
 wrk.method = "POST"
-wrk.body = ""
-wrk.headers["Content-Type"] = "application/x-www-form-urlencoded"
+wrk.body = "mutation { repeat(word: \"One\") }"
+wrk.headers["Content-Type"] = "application/graphql"
 
 -- duration in microseconds
 -- total completed requests
@@ -19,7 +19,7 @@ wrk.headers["Content-Type"] = "application/x-www-form-urlencoded"
 -- percentile : 90
 -- percentile : 99
 -- percentile : 99.999
-  
+
 done = function(summary, latency, requests)
 
   out = {

@@ -162,7 +162,7 @@ def benchmark(host, threads, connections, duration, target, store) : Filter
   results = Hash(String, Hash(String, Float64)).new(parser)
   ["/", "/graphql?query={hello}"].each do |route|
     raw = `#{CLIENT} --duration #{duration} --connections #{connections.to_i.to_s} --threads #{threads} --url http://#{host}:3000#{route}`
-    #raw = `perfer -d #{duration} -c #{connections.to_s} -t #{threads.to_s} -j -k http://#{host}:3000#{route}`
+    #raw = `perfer -d #{duration} -c #{connections.to_s} -t 1 -j -k http://#{host}:3000#{route}`
     #puts raw
     result = Result.from_json(raw)
     parser = JSON::PullParser.new(raw)

@@ -274,6 +274,7 @@ lats[0..4].size.times { |i|
   rt = rates[i]
   $out.puts("| :%s: | %s (%s) | :%s: | %s (%s) |" % [emojis[i], rt.name, rt.lang, emojis[i], lt.name, lt.lang])
 }
+$out.puts()
 
 $out.puts('#### Parameters')
 $out.puts("- Last updates: #{Time.now.strftime("%Y-%m-%d")}")
@@ -283,7 +284,6 @@ $out.puts("- Connections: #{$connections}")
 $out.puts("- Duration: #{$duration} seconds")
 $out.puts()
 
-$out.puts()
 $out.puts('### Rate (requests per second)')
 $out.puts('| Language (Runtime) | Framework (Middleware) | Requests/second | Throughput (MB/sec) |')
 $out.puts('| -------------------| ---------------------- | ---------------:| -------------------:|')

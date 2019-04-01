@@ -33,7 +33,6 @@ language: crystal
 env:
   matrix:
     - FRAMEWORK=agoo
-    - FRAMEWORK=agoo-c
 
 # Lint yaml files in a specific jobs
 jobs:

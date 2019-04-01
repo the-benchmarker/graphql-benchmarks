@@ -79,6 +79,34 @@ def frameworks : Array(Target)
   targets
 end
 
+class Bench
+  JSON.mapping(
+    options: {type: BOptions, nilable: false},
+    results: {type: Results, nilable: false},
+  )
+end
+
+class BOptions
+  JSON.mapping(
+    threads: {type: Int64, nilable: false},
+    connections: {type: Int64, nilable: false},
+    duration: {type: Float64, nilable: false},
+    keepAlive: {type: Bool, nilable: false},
+  )
+end
+
+class Results
+  JSON.mapping(
+    connections: {type: Int64, nilable: false},
+    requests: {type: Int64, nilable: false},
+    requestsPerSecond: {type: Int64, nilable: false},
+    totalBytes: {type: Int64, nilable: false},
+    latencyAverageMilliseconds: {type: Float64, nilable: false},
+    latencyMeanMilliseconds: {type: Float64, nilable: false},
+    latencyStdev: {type: Float64, nilable: false},
+  )
+end
+
 class Result
   JSON.mapping(
     request: {type: Request, nilable: false},
@@ -154,16 +182,25 @@ end
 def benchmark(host, threads, connections, duration, target, store) : Filter
   latency = 0.0
   requests = 0.0
-  #threads = 1
-  #connections = connections.to_i / threads
+  duration = 5
   raw = `#{CLIENT} --url http://#{host}:3000 --init`
   result = Result.from_json(raw)
   parser = JSON::PullParser.new(raw)
   results = Hash(String, Hash(String, Float64)).new(parser)
-  ["/", "/graphql?query={hello}"].each do |route|
+
+  ["/graphql?query={hello}"].each do |route|
+    #cmd = "perfer -d #{duration} -c #{connections.to_i.to_s} -t 1 -k -b 4 -l 50,90,99,99.9 -j http://#{host}:3000#{route}"
+    cmd = "perfer -d #{duration} -c #{connections.to_i} -t 1 -k -b 4 -j http://#{host}:3000#{route}"
+    io = IO::Memory.new
+    Process.run(cmd, shell: true, error: io, output: io)
+    raw = io.to_s
+    puts "*** raw: #{raw}"
+    result = Bench.from_json(raw)
+
+    # TBD merge with results
+
     raw = `#{CLIENT} --duration #{duration} --connections #{connections.to_i.to_s} --threads #{threads} --url http://#{host}:3000#{route}`
-    #raw = `perfer -d #{duration} -c #{connections.to_s} -t 1 -j -k http://#{host}:3000#{route}`
-    #puts raw
+    puts raw
     result = Result.from_json(raw)
     parser = JSON::PullParser.new(raw)
     data = Hash(String, Hash(String, Float64)).new(parser)
@@ -172,46 +209,56 @@ def benchmark(host, threads, connections, duration, target, store) : Filter
       results[key].merge!(metrics) { |_, v1, v2| v1 + (v2/3) }
     end
     requests = requests + result.request.per_second
+    puts "*** data: #{data}"
+    puts "*** results: #{results}"
+
     #latency = latency + result.percentile.fifty
   end
 
-  ["/", "/graphql?query={hello}"].each do |route|
-    raw = `#{CLIENT} --duration #{duration} --connections 1 --threads 1 --url http://#{host}:3000#{route}`
-    #raw = `perfer -d #{duration} -c 1 -t 1 -j -k http://#{host}:3000#{route}`
-    result = Result.from_json(raw)
-    parser = JSON::PullParser.new(raw)
-    data = Hash(String, Hash(String, Float64)).new(parser)
-    data.each do |key, metrics|
-      next unless key == "latency" || key == "percentile"
-      results[key].merge!(metrics) { |_, v1, v2| v1 + (v2/3) }
-    end
-    latency = latency + result.percentile.fifty
-  end
-
-  ["/graphql"].each do |route|
-    raw = `#{CLIENT} --method POST --duration #{duration} --connections #{connections.to_i.to_s} --threads #{threads} --url http://#{host}:3000#{route}`
-    result = Result.from_json(raw)
-    parser = JSON::PullParser.new(raw)
-    data = Hash(String, Hash(String, Float64)).new(parser)
-    data.each do |key, metrics|
-      next if key == "latency" || key == "percentile"
-      results[key].merge!(metrics) { |_, v1, v2| v1 + (v2/3) }
-    end
-    requests = requests + result.request.per_second
-    #latency = latency + result.percentile.fifty
-  end
-
-  ["/graphql"].each do |route|
-    raw = `#{CLIENT} --method POST --duration #{duration} --connections 1 --threads 1 --url http://#{host}:3000#{route}`
-    result = Result.from_json(raw)
-    parser = JSON::PullParser.new(raw)
-    data = Hash(String, Hash(String, Float64)).new(parser)
-    data.each do |key, metrics|
-      next unless key == "latency" || key == "percentile"
-      results[key].merge!(metrics) { |_, v1, v2| v1 + (v2/3) }
-    end
-    latency = latency + result.percentile.fifty
-  end
+#  ["/", "/graphql?query={hello}"].each do |route|
+#    cmd = "perfer -d #{duration} -c 100 -t 1 -k -b 1 -m 1000 -g 160x20 http://#{host}:3000#{route}"
+#    io = IO::Memory.new
+#    Process.run(cmd, shell: true, error: io, output: io)
+#    puts io.to_s
+#
+#    raw = `#{CLIENT} --duration #{duration} --connections 100 --threads #{threads} --url http://#{host}:3000#{route}`
+#    puts raw
+#    result = Result.from_json(raw)
+#    parser = JSON::PullParser.new(raw)
+#    data = Hash(String, Hash(String, Float64)).new(parser)
+#    data.each do |key, metrics|
+#      next unless key == "latency" || key == "percentile"
+#      results[key].merge!(metrics) { |_, v1, v2| v1 + (v2/3) }
+#    end
+#    latency = latency + result.percentile.fifty
+#    sleep(5)
+#  end
+#
+#  ["/graphql"].each do |route|
+#    raw = `#{CLIENT} --method POST --duration #{duration} --connections #{connections.to_i.to_s} --threads #{threads} --url http://#{host}:3000#{route}`
+#    puts raw
+#    result = Result.from_json(raw)
+#    parser = JSON::PullParser.new(raw)
+#    data = Hash(String, Hash(String, Float64)).new(parser)
+#    data.each do |key, metrics|
+#      next if key == "latency" || key == "percentile"
+#      results[key].merge!(metrics) { |_, v1, v2| v1 + (v2/3) }
+#    end
+#    requests = requests + result.request.per_second
+#    #latency = latency + result.percentile.fifty
+#  end
+#
+#  ["/graphql"].each do |route|
+#    raw = `#{CLIENT} --method POST --duration #{duration} --connections 1 --threads 1 --url http://#{host}:3000#{route}`
+#    result = Result.from_json(raw)
+#    parser = JSON::PullParser.new(raw)
+#    data = Hash(String, Hash(String, Float64)).new(parser)
+#    data.each do |key, metrics|
+#      next unless key == "latency" || key == "percentile"
+#      results[key].merge!(metrics) { |_, v1, v2| v1 + (v2/3) }
+#    end
+#    latency = latency + result.percentile.fifty
+#  end
 
   store.set("#{target.lang}:#{target.name}", results.to_json)
 
@@ -254,19 +301,36 @@ emojis << "four"
 emojis << "five"
 
 targets.each do |target|
-  cid = `docker run -td #{target.name}`.strip
+  begin
+    cid = `docker run -td #{target.name}`.strip
+    remote_ip = nil
+    20.times do
+      remote_ip = `docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' #{cid}`.strip
+      break if nil != remote_ip && 0 < remote_ip.size()
+      sleep 1
+    end
 
-  sleep 20 # due to external program usage
+    20.times do
+      begin
+	content = HTTP::Client.get("http://#{remote_ip}:3000")
+	break if nil != content
+      rescue e : Exception
+	sleep 1
+      end
+    end
 
-  remote_ip = `docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' #{cid}`.strip
+    sleep 5
 
-  result = benchmark(remote_ip, threads, connections, duration, target, store)
+    result = benchmark(remote_ip, threads, connections, duration, target, store)
 
-  all.push(Ranked.new(result, target))
+    all.push(Ranked.new(result, target))
 
-  puts_markdown "Done. <- #{target.name}"
-
-  `docker stop #{cid}`
+    puts_markdown "Done. <- #{target.name}"
+  rescue Exception => e
+    puts "--- #{e.class}: #{e.message}"
+  ensure
+    `docker stop #{cid}`
+  end
 end
 
 ranks_by_requests = all.sort do |rank0, rank1|

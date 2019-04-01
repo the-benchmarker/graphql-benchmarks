@@ -265,26 +265,23 @@ rates = $targets.sort{ |ta, tb| ta.rate <=> tb.rate }
 
 $out = StringIO.new()
 
-$out.puts("Last updates: #{Time.now.strftime("%Y-%m-%d")}")
-$out.puts()
-$out.puts("OS: #{`uname -s`.rstrip} (version: #{`uname -r`.rstrip}, arch: #{`uname -m`.rstrip})")
-$out.puts()
-$out.puts("CPU Cores: #{Etc.nprocessors}")
-$out.puts()
-$out.puts("Connections: #{$connections}")
-$out.puts()
-$out.puts("Duration: #{$duration} seconds")
-$out.puts()
-
 $out.puts('### Top 5 Ranking')
-$out.puts('|    | Requests/second | Latency (milliseconds) |')
-$out.puts('|:--:| --------------- | ---------------------- |')
+$out.puts('|     | Requests/second |     | Latency (milliseconds) |')
+$out.puts('|:---:| --------------- |:---:| ---------------------- |')
 
 lats[0..4].size.times { |i|
   lt = lats[i]
   rt = rates[i]
-  $out.puts("| :%s: | %s (%s) | %s (%s) |" % [emojis[i], rt.name, rt.lang, lt.name, lt.lang])
+  $out.puts("| :%s: | %s (%s) | :%s: | %s (%s) |" % [emojis[i], rt.name, rt.lang, emojis[i], lt.name, lt.lang])
 }
+
+$out.puts('#### Parameters')
+$out.puts("- Last updates: #{Time.now.strftime("%Y-%m-%d")}")
+$out.puts("- OS: #{`uname -s`.rstrip} (version: #{`uname -r`.rstrip}, arch: #{`uname -m`.rstrip})")
+$out.puts("- CPU Cores: #{Etc.nprocessors}")
+$out.puts("- Connections: #{$connections}")
+$out.puts("- Duration: #{$duration} seconds")
+$out.puts()
 
 $out.puts()
 $out.puts('### Rate (requests per second)')

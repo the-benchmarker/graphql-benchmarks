@@ -40,8 +40,8 @@ Duration: 15 seconds
 + [Crystal](https://crystal-lang.org) as some `built-in` tools are made in this language
 + [Ruby](https://www.ruby-lang.org) for tooling
 + [Docker](https://www.docker.com) as **frameworks** are `isolated` into _containers_
-+ [perfer](https://github.com/ohler55/perfer), the benchmarking tool, `>= 1.5.1`
-+ [Oj](https://github.com/ohler55/oj), needed by the benchmarking Ruby script, `>= 3.7`
++ [perfer](https://github.com/ohler55/perfer) the benchmarking tool, `>= 1.5.1`
++ [Oj](https://github.com/ohler55/oj) is needed by the benchmarking Ruby script, `>= 3.7`
 
 ## Usage
 
@@ -77,7 +77,7 @@ bin/benchmarker [tools]
 
 In any way you want ...
 
-+ Request a framework addition
++ Provide a Pull Request for a framework addition
 + Report a bug (on any implementation)
 + Suggest an idea
 + ...

@@ -17,7 +17,3 @@ dependencies:
 targets:
   neph:
     main: lib/neph/src/bin/neph_bin.cr
-  benchmarker:
-    main: tools/src/benchmarker.cr
-  client:
-    main: tools/src/client.cr

@@ -8,7 +8,7 @@ require 'yaml'
 
 $verbose = 1
 $connections = 1000
-$duration = 2
+$duration = 15
 $record = false
 
 opts = OptionParser.new(%{Usage: benchmarker.rb [options] <target>...
@@ -30,6 +30,7 @@ $languages = {}
 class Target
   attr_accessor :name
   attr_accessor :lang
+  attr_accessor :langver
   attr_accessor :version
   attr_accessor :link
   attr_accessor :duration
@@ -40,6 +41,7 @@ class Target
     @name = name
     @lang = lang
     @version = info['version']
+    @langver = info['language']
     if info.has_key?('github')
       @link = "github.com/#{info['github']}"
     else info.has_key?('website')
@@ -53,7 +55,7 @@ class Target
     @lat_stdev = 0.0
     @lat_90 = 0.0
     @lat_99 = 0.0
-    @lat_995 = 0.0
+    @lat_999 = 0.0
     @lat_cnt = 0
   end
 
@@ -61,13 +63,13 @@ class Target
     "Target{ lang: #{@lang} name: #{@name} version: #{@version} link: #{@link} duration: #{@duration} requests: #{@requests} }"
   end
 
-  def add_latency(average, mean, stdev, l90, l99, l995)
+  def add_latency(average, mean, stdev, l90, l99, l999)
     @lat_ave += average
     @lat_mean += mean
     @lat_stdev += stdev
     @lat_90 += l90
     @lat_99 += l99
-    @lat_995 += l995
+    @lat_999 += l999
     @lat_cnt += 1
   end
 
@@ -96,9 +98,9 @@ class Target
     @lat_99.to_f / @lat_cnt.to_f
   end
 
-  def latency_995
+  def latency_999
     return 0 if @lat_cnt <= 0
-    @lat_995.to_f / @lat_cnt.to_f
+    @lat_999.to_f / @lat_cnt.to_f
   end
 
   def rate
@@ -172,7 +174,7 @@ def benchmark(target, ip)
 
     # Make a separate run for latency are a leisurely rate to determine the
     # latency when under normal load.
-    out = `perfer -d #{$duration} -c 10 -t 1 -k -b 1 -j -m 1000 -l 50,90,99,99.5 http://#{ip}:3000#{route}`
+    out = `perfer -d #{$duration} -c 10 -t 1 -k -b 1 -j -m 1000 -l 50,90,99,99.9 http://#{ip}:3000#{route}`
     puts "#{target.name} - #{route} latency output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 
@@ -183,7 +185,7 @@ def benchmark(target, ip)
 		       results['latencyStdev'],
 		       spread['90.00'],
 		       spread['99.00'],
-		       spread['99.50'])
+		       spread['99.90'])
   }
 
   ['/graphql'].each { |route|
@@ -197,7 +199,7 @@ def benchmark(target, ip)
 
     # Make a separate run for latency are a leisurely rate to determine the
     # latency when under normal load.
-    out = `perfer -d #{$duration} -c 10 -t 1 -k -b 1 -j -m 1000 -l 50,90,99,99.5 http://#{ip}:3000#{route}`
+    out = `perfer -d #{$duration} -c 10 -t 1 -k -b 1 -j -m 1000 -l 50,90,99,99.9 http://#{ip}:3000#{route}`
     puts "#{target.name} - #{route} latency output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 
@@ -208,7 +210,7 @@ def benchmark(target, ip)
 		       results['latencyStdev'],
 		       spread['90.00'],
 		       spread['99.00'],
-		       spread['99.50'])
+		       spread['99.90'])
   }
 end
 
@@ -256,6 +258,11 @@ $targets.each { |target|
 
 ### Display results ###########################################################
 
+emojis = [ 'one', 'two', 'three', 'four', 'five' ]
+
+lats = $targets.sort{ |ta, tb| ta.latency_mean <=> tb.latency_mean }
+rates = $targets.sort{ |ta, tb| ta.rate <=> tb.rate }
+
 $out = StringIO.new()
 
 $out.puts("Last updates: #{Time.now.strftime("%Y-%m-%d")}")
@@ -263,19 +270,41 @@ $out.puts()
 $out.puts("OS: #{`uname -s`.rstrip} (version: #{`uname -r`.rstrip}, arch: #{`uname -m`.rstrip})")
 $out.puts("CPU Cores: #{Etc.nprocessors}")
 $out.puts("Connections: #{$connections}")
+$out.puts("Duration: #{$duration}")
 $out.puts()
 
-# TBD sort by mean latency
+$out.puts('### Top 5 Ranking')
+$out.puts('|    | Requests/second | Latency (milliseconds) |')
+$out.puts('|:--:| --------------- | ---------------------- |')
 
-$targets.each { |target|
+lats[0..4].size.times { |i|
+  lt = lats[i]
+  rt = rates[i]
+  $out.puts("| :%s: | %s (%s) | %s (%s) |" % [emojis[i], rt.name, rt.lang, lt.name, lt.lang])
+}
 
-  $out.puts(target)
+$out.puts()
+$out.puts('### Rate (requests per second)')
+$out.puts('| Language (Runtime) | Framework (Middleware) | Requests/second | Throughput (MB/sec) |')
+$out.puts('| -------------------| ---------------------- | ---------------:| -------------------:|')
+rates.each { |t|
+  $out.puts("| %s (%s) | [%s](%s) (%s) | %d | %.2f MB/sec |" % [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.throughput])
+}
 
-  $out.puts("*** #{target.name} rate: #{target.rate}")
-  $out.puts("*** #{target.name} throughput: #{target.throughput}")
-  $out.puts("*** #{target.name} latency average: #{target.latency_average}")
-  $out.puts("*** #{target.name} latency mean: #{target.latency_mean}")
-
+$out.puts()
+$out.puts('### Latency')
+$out.puts('| Language (Runtime) | Framework (Middleware) | Average | Mean | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation |')
+$out.puts('| ------------------ | ---------------------- | -------:| ----:| ---------------:| ---------------:| -----------------:| ------------------:|')
+lats.each { |t|
+  $out.puts("| %s (%s) | [%s](%s) (%s) | %.2f ms | %.2f ms | %.2f ms | %.2f ms | %.2f ms | %.2f |" %
+	    [t.lang, t.langver, t.name, t.link, t.version, t.latency_average, t.latency_mean, t.latency_90, t.latency_99, t.latency_999, t.latency_stdev])
 }
 
 puts $out.string
+
+if $record
+  path = File.expand_path('../../README.md', __FILE__)
+  readme = File.read(path)
+  readme.gsub!(/\<!--\sResult\sfrom\shere\s-->[\s\S]*?<!--\sResult\still\shere\s-->/, "<!-- Result from here -->\n" + $out.string + "<!-- Result till here -->")
+  File.write(path, readme)
+end

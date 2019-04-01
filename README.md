@@ -1,6 +1,5 @@
 # Which is the fastest GraphQL?
 
-
 It's all about GraphQL server benchmarking across many languages.
 
 Benchmarks cover maximum throughput and normal use latency. For a more
@@ -10,104 +9,66 @@ bottom of this page.
 ## Results
 
 <!-- Result from here -->
-Last update: 2019-02-28
-```
-OS: Linux (version: 4.16.3-301.fc28.x86_64, arch: x86_64)
-CPU Cores: 8
-```
+Last updates: 2019-04-01
+
+OS: Linux (version: 5.0.5-050005-generic, arch: x86_64)
+CPU Cores: 4
+Connections: 1000
+Duration: 15
+
+### Top 5 Ranking
+|    | Requests/second | Latency (milliseconds) |
+|:--:| --------------- | ---------------------- |
+| :one: | agoo (ruby) | agoo (ruby) |
+
+### Rate (requests per second)
+| Language (Runtime) | Framework (Middleware) | Requests/second | Throughput (MB/sec) |
+| -------------------| ---------------------- | ---------------:| -------------------:|
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 121374 | 13.61 MB/sec |
 
 ### Latency
-
-#### Ranking (top 5)
-
-
-:one: nickel (rust)
-
-
-:two: roda (ruby)
-
-
-:three: rack-routing (ruby)
-
-
-:four: slim (php)
-
-
-:five: laravel (php)
-
-
-#### Full table
-
-| Language (Runtime) | Framework (Middleware) | Average | 50th percentile | 90th percentile | 99th percentile | 99.9th percentile | Standard deviation |
-|---------------------------|---------------------------|----------------:|----------------:|----------------:|----------------:|----------------:|----------------:|
-
-### Requests per seconds
-
-
-#### Ranking (top 5)
-
-
-:one: (japronto) (python)
-
-
-:two: (actix-web) (rust)
-
-
-:three: (agoo-c) (c)
-
-
-:four: (kore) (c)
-
-
-:five: (evhtp) (cpp)
-
-
-#### Full table
-
-| Language (Runtime) | Framework (Middleware) | Requests / s | Throughput |
-|---------------------------|---------------------------|----------------:|---------:|
+| Language (Runtime) | Framework (Middleware) | Average | Mean | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation |
+| ------------------ | ---------------------- | -------:| ----:| ---------------:| ---------------:| -----------------:| ------------------:|
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 0.14 ms | 0.05 ms | 0.09 ms | 0.11 ms | 29.96 ms | 2.55 |
 <!-- Result till here -->
-
 
 ## Requirements
 
-+ [Crystal](https://crystal-lang.org) as `built-in` tools are made in this language
++ [Crystal](https://crystal-lang.org) as some `built-in` tools are made in this language
 + [Ruby](https://www.ruby-lang.org) for tooling
 + [Docker](https://www.docker.com) as **frameworks** are `isolated` into _containers_
 + [perfer](https://github.com/ohler55/perfer), the benchmarking tool, `>= 1.5.1`
-
-
-:warning: `docker` is used for **development** purpose, `production` results will be computed on [DigitalOcean](https://www.digitalocean.com) :warning:
++ [Oj](https://github.com/ohler55/oj), needed by the benchmarking Ruby script, `>= 3.7`
 
 ## Usage
 
 + Install all dependencies
 
-~~~sh
+```sh
 shards install
-~~~
+```
 
 + Build internal tools
 
-~~~sh
+```sh
 shards build
-~~~
+```
 
 + Build containers
 
 > jobs are either languages (example : crystal) or frameworks (example : router.cr)
 
-~~~sh
+```sh
 bin/neph [job1] [job2] [job3] ...
-~~~
+```
 
 + Start the benchmark ....
 
 > tools is a list of language / framework to challenge (example : ruby kemal amber go python)
 
-~~~sh
+```sh
 bin/benchmarker [tools]
-~~~
+```
 
 ## How to contribute ?
 
@@ -123,4 +84,4 @@ All ideas are welcome.
 ## Contributors
 
 - [Peter Ohler](https://github.com/ohler55) - Author, maintainer
-- [the-benchmarker/web-frameworks](https://github.com/the-benchmarker/web-frameworks) - the original closed source that has been modified for this repository
+- [the-benchmarker/web-frameworks](https://github.com/the-benchmarker/web-frameworks) - the original cloned source that has been modified for this repository

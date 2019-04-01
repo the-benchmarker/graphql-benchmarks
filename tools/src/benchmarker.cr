@@ -326,7 +326,7 @@ targets.each do |target|
     all.push(Ranked.new(result, target))
 
     puts_markdown "Done. <- #{target.name}"
-  rescue Exception => e
+  rescue e : Exception
     puts "--- #{e.class}: #{e.message}"
   ensure
     `docker stop #{cid}`

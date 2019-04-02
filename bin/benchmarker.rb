@@ -293,8 +293,8 @@ rates.each { |t|
 
 $out.puts()
 $out.puts('### Latency')
-$out.puts('| Language (Runtime) | Framework (Middleware) | Average | Mean | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation |')
-$out.puts('| ------------------ | ---------------------- | -------:| ----:| ---------------:| ---------------:| -----------------:| ------------------:|')
+$out.puts('| Language (Runtime) | Framework (Middleware) | Average Latency | Mean Latency | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation |')
+$out.puts('| ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| ---------------:| -----------------:| ------------------:|')
 lats.each { |t|
   $out.puts("| %s (%s) | [%s](%s) (%s) | %.2f ms | %.2f ms | %.2f ms | %.2f ms | %.2f ms | %.2f |" %
 	    [t.lang, t.langver, t.name, t.link, t.version, t.latency_average, t.latency_mean, t.latency_90, t.latency_99, t.latency_999, t.latency_stdev])

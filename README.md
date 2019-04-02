@@ -27,7 +27,7 @@ bottom of this page.
 | ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 131252 | 10.28 MB/sec |
 
 ### Latency
-| Language (Runtime) | Framework (Middleware) | Average | Mean | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation |
+| Language (Runtime) | Framework (Middleware) | Average Latency | Mean Latency | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation |
 | ------------------ | ---------------------- | -------:| ----:| ---------------:| ---------------:| -----------------:| ------------------:|
 | ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 0.10 ms | 0.05 ms | 0.08 ms | 0.10 ms | 30.52 ms | 1.40 |
 <!-- Result till here -->
@@ -70,14 +70,14 @@ bin/neph [job1] [job2] [job3] ...
 bin/benchmarker.rb [tools]
 ```
 
-## How to contribute ?
+## How to contribute
 
 In any way you want ...
 
 + Provide a Pull Request for a framework addition
 + Report a bug (on any implementation)
 + Suggest an idea
-+ ...
++ [More details](CONTRIBUTING.md)
 
 All ideas are welcome.
 

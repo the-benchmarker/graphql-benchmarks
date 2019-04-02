@@ -10,12 +10,12 @@ bottom of this page.
 
 <!-- Result from here -->
 ### Top 5 Ranking
-|    | Requests/second | Latency (milliseconds) |
-|:--:| --------------- | ---------------------- |
-| :one: | agoo (ruby) | agoo (ruby) |
+|     | Requests/second |     | Latency (milliseconds) |
+|:---:| --------------- |:---:| ---------------------- |
+| :one: | agoo (ruby) | :one: | agoo (ruby) |
 
 #### Parameters
-- Last updates: 2019-04-01
+- Last updates: 2019-04-02
 - OS: Linux (version: 5.0.5-050005-generic, arch: x86_64)
 - CPU Cores: 4
 - Connections: 1000
@@ -24,12 +24,12 @@ bottom of this page.
 ### Rate (requests per second)
 | Language (Runtime) | Framework (Middleware) | Requests/second | Throughput (MB/sec) |
 | -------------------| ---------------------- | ---------------:| -------------------:|
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 121374 | 13.61 MB/sec |
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 131252 | 10.28 MB/sec |
 
 ### Latency
 | Language (Runtime) | Framework (Middleware) | Average | Mean | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation |
 | ------------------ | ---------------------- | -------:| ----:| ---------------:| ---------------:| -----------------:| ------------------:|
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 0.14 ms | 0.05 ms | 0.09 ms | 0.11 ms | 29.96 ms | 2.55 |
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 0.10 ms | 0.05 ms | 0.08 ms | 0.10 ms | 30.52 ms | 1.40 |
 <!-- Result till here -->
 
 ## Requirements
@@ -67,7 +67,7 @@ bin/neph [job1] [job2] [job3] ...
 > tools is a list of language / framework to challenge (example : ruby kemal amber go python)
 
 ```sh
-bin/benchmarker [tools]
+bin/benchmarker.rb [tools]
 ```
 
 ## How to contribute ?

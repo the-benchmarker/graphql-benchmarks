@@ -161,7 +161,7 @@ end
 ### Running the benchmarks ####################################################
 
 def benchmark(target, ip)
-  ['/', '/graphql?query={hello}'].each { |route|
+  ['/', '/graphql?query={hello\(name:"world"\)}'].each { |route|
 
     # First run at full throttle to get the maximum rate and throughput.
     out = `perfer -d #{$duration} -c #{$connections} -t 1 -k -b 4 -j http://#{ip}:3000#{route}`
@@ -189,7 +189,7 @@ def benchmark(target, ip)
   }
 
   ['/graphql'].each { |route|
-    out = `perfer -d #{$duration} -c #{$connections} -t 1 -k -b 4 -j -p 'mutation { repeat(word: "Hello")}' http://#{ip}:3000#{route}`
+    out = `perfer -d #{$duration} -c #{$connections} -t 1 -k -b 4 -j -a 'Content-Type: application/graphql' -p 'mutation { repeat(word: "Hello")}' http://#{ip}:3000#{route}`
     puts "#{target.name} - POST #{route} maximum rate output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 

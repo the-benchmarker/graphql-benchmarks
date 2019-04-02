@@ -3,20 +3,6 @@
 require 'etc'
 require 'agoo'
 
-Agoo::Log.configure(dir: '',
-                    console: true,
-                    classic: true,
-                    colorize: true,
-                    states: {
-                      INFO: false,
-                      DEBUG: false,
-                      connect: false,
-                      request: false,
-                      response: false,
-                      eval: false,
-                      push: false
-                    })
-
 worker_count = Etc.nprocessors() * 3
 Agoo::Server.init(3000, '.', thread_count: 1, worker_count: worker_count, graphql: '/graphql')
 
@@ -32,8 +18,8 @@ class Empty
 end
 
 class Query
-  def hello
-    'Hello'
+  def hello(args={})
+    'Hello ' + args['name'].to_s
   end
 end
 
@@ -63,10 +49,10 @@ Agoo::Server.start
 Agoo::GraphQL.schema(Schema.new) {
   Agoo::GraphQL.load(%^
 type Query {
-  hello: String
+  hello(name: String!): String
 }
 type Mutation {
-  repeat(word: String): String
+  repeat(word: String!): String
 }
 ^)
 }

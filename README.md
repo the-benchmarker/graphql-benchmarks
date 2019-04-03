@@ -70,7 +70,47 @@ bin/neph [job1] [job2] [job3] ...
 bin/benchmarker.rb [tools]
 ```
 
-## How to contribute
+## Methodology
+
+Performance of a framework includes latency and maximum number of requests
+that can be handled in a span of time. The assumption is that users of a
+framework will choose to run at somewhat less that fully loaded. Running fully
+loaded would leave no room for a spike in usage. With that in mind, the
+maximum number of requests per second will serve as the upper limit for a
+framework.
+
+Latency tends to vary significantly not only radomly but according to the
+load. A typical latency versus throughput curve starts at some low-load value
+and stays fairly flat in the normal load region until some inflection
+point. At the inflection point until the maximum throughput the latency
+increases.
+
+```
+ |                                                                  *
+ |                                                              ****
+ |                                                          ****
+ |                                                      ****
+ |******************************************************
+ +---------------------------------------------------------------------
+  ^               \             /                       ^           ^
+  low-load          normal-load                         inflection  max
+
+These benchmarks show the normal-load latency as that is what most users will
+see when using a service. Most deployments do not run at near maximum
+throughput but try to stay in the normal-load are but are prepared for spike
+in usage. To accomdate slower frameworks a value of 1000 request per second is
+used for determing the mean latency. The assumption is that a rate of 1000
+request per second falls in the normal range for most if not all frameworks
+tested.
+
+The `perfer` benchmarking tool is used for these reasons:
+
+- A rate can be specified for latency determination.
+- JSON output makes parsing output easier.
+- Fewer threads are needed by `perfer` leaving more for the application being benchmarked.
+- `perfer` is faster than `wrk` albeit only slightly.
+
+## How to Contribute
 
 In any way you want ...
 

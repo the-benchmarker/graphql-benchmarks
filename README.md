@@ -94,6 +94,7 @@ increases.
  +---------------------------------------------------------------------
   ^               \             /                       ^           ^
   low-load          normal-load                         inflection  max
+```
 
 These benchmarks show the normal-load latency as that is what most users will
 see when using a service. Most deployments do not run at near maximum

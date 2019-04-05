@@ -24,12 +24,8 @@ class Query
 end
 
 class Mutation
-  def initialize
-    @last = 'Hello'
-  end
-
-  def repeat(args={})
-    @last = args['word']
+  def double(args={})
+    args['number'] * 2
   end
 end
 
@@ -52,7 +48,8 @@ type Query {
   hello(name: String!): String
 }
 type Mutation {
-  repeat(word: String!): String
+  "Double the number provided."
+  double(number: Int!): Int
 }
 ^)
 }

@@ -20,7 +20,8 @@ type Query {
   hello(name: String!): String
 }
 type Mutation {
-  repeat(word: String!): String
+  "Double the number provided."
+  double(number: Int!): Int
 }
 ```
 
@@ -38,7 +39,6 @@ Must respond with:
 
  - Status Code: `200`
  - Response Body: _empty_
-
 
 ### GraphQL Query using GET
 
@@ -65,19 +65,19 @@ When set an HTTP request:
 
  - Method: POST
  - Route: `/graphql`
- - Request Body: `mutation{repeat(word:"GraphQL")}`
+ - Request Body: `mutation{double(number:3)}`
  - Header: `Content-Type: application/graphql`
 
-An example using `curl` is `curl -H 'Content-Type: application/graphql' -d 'mutation {repeat(word:"GraphQL")}' 172.17.0.2:3000/graphql`
+An example using `curl` is `curl -H 'Content-Type: application/graphql' -d 'mutation {double(number: 3)}' 172.17.0.2:3000/graphql`
 
 Must respond with:
 
  - Status Code: `200`
- - Response Body: `{"data":{"repeat":"GraphQL"}}`
+ - Response Body: `{"data":{"double":6}}`
  - Header Check for: `Content-Type: application/json`
 
-The returned word must match the word in the returned JSON response. In the
-example it is "GraphQL".
+The returned value must be double the provided value. In the example the
+provided value is 3.
 
 + All framework **MUST** contain a `Dockerfile`
 

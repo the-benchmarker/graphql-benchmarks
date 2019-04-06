@@ -112,14 +112,13 @@ main(int argc, char **argv) {
     struct _agooErr	err = AGOO_ERR_INIT;
     int			port = 3000;
 
+    agoo_io_loop_ratio = 0.5;   // higher values mean more IO threads
+    agoo_server.thread_cnt = 2; // eval threads
+
     if (AGOO_ERR_OK != agoo_init(&err, "simple")) {
 	printf("Failed to initialize Agoo. %s\n", err.msg);
 	return err.code;
     }
-    // Set the number of eval threads. No need for more than one in this
-    // case. The multiple read/write threads do most of the work and are
-    // adjusted automatically.
-    agoo_server.thread_cnt = 2;
 
     if (AGOO_ERR_OK != agoo_pages_set_root(&err, ".")) {
 	printf("Failed to set root. %s\n", err.msg);

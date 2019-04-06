@@ -261,7 +261,7 @@ $targets.each { |target|
 emojis = [ 'one', 'two', 'three', 'four', 'five' ]
 
 lats = $targets.sort{ |ta, tb| ta.latency_mean <=> tb.latency_mean }
-rates = $targets.sort{ |ta, tb| ta.rate <=> tb.rate }
+rates = $targets.sort{ |ta, tb| tb.rate <=> ta.rate }
 
 $out = StringIO.new()
 

@@ -6,5 +6,5 @@ ruby:
 c:
   agoo-c:
     website: github.com/ohler55/agoo-c
-    version: "0.4"
+    version: "0.5"
     language: "11"

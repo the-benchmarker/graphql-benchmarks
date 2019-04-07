@@ -113,12 +113,11 @@ main(int argc, char **argv) {
     int			port = 3000;
 
     agoo_io_loop_ratio = 0.5;   // higher values mean more IO threads
-    agoo_server.thread_cnt = 2; // eval threads
-
     if (AGOO_ERR_OK != agoo_init(&err, "simple")) {
 	printf("Failed to initialize Agoo. %s\n", err.msg);
 	return err.code;
     }
+    agoo_server.thread_cnt = 1; // eval threads
 
     if (AGOO_ERR_OK != agoo_pages_set_root(&err, ".")) {
 	printf("Failed to set root. %s\n", err.msg);

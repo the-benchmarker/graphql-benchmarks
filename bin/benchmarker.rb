@@ -8,6 +8,7 @@ require 'yaml'
 
 $verbose = 1
 $connections = 1000
+$threads = 1 # a single thread gives the best results up to including 12 cores.
 $duration = 15
 $record = false
 
@@ -15,13 +16,13 @@ opts = OptionParser.new(%{Usage: benchmarker.rb [options] <target>...
 
 Run benchmarks on targets specified.
 })
-opts.on('-v', 'increase verbosity')                               { $verbose += 1 }
-opts.on('-c', '--connections', Integer, 'number of connections')  { |c| $connections = c }
-opts.on('-d', '--duration', Integer, 'duration in seconds')       { |d| $duration = d }
-opts.on('-t', '--threads', Integer, 'ignored')                    { }
-opts.on('-r', '--record', 'record to README.md')                  { $record = true }
+opts.on('-v', 'increase verbosity')                                      { $verbose += 1 }
+opts.on('-c', '--connections NUMBER', Integer, 'number of connections')  { |c| $connections = c }
+opts.on('-d', '--duration SECONDS', Integer, 'duration in seconds')      { |d| $duration = d }
+opts.on('-t', '--threads NUMBER', Integer, 'ignored')                    { |t| $threads = t }
+opts.on('-r', '--record', 'record to README.md')                         { $record = true }
 
-opts.on('-h', '--help', 'Show this display')                      { puts opts.help; Process.exit!(0) }
+opts.on('-h', '--help', 'Show this display')                             { puts opts.help; Process.exit!(0) }
 
 $target_names = opts.parse(ARGV)
 $languages = {}
@@ -164,17 +165,17 @@ def benchmark(target, ip)
   ['/', '/graphql?query={hello\(name:"world"\)}'].each { |route|
 
     # First run at full throttle to get the maximum rate and throughput.
-    out = `perfer -d #{$duration} -c #{$connections} -t 1 -k -b 4 -j http://#{ip}:3000#{route}`
+    out = `perfer -d #{$duration} -c #{$connections} -t #{$threads} -k -b 4 -j http://#{ip}:3000#{route}`
     puts "#{target.name} - #{route} maximum rate output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 
-    target.duration += bench['options']['duration']
+    target.duration += bench['options']['duration'].to_f
     target.requests += bench['results']['requests']
     target.bytes += bench['results']['totalBytes']
 
     # Make a separate run for latency are a leisurely rate to determine the
     # latency when under normal load.
-    out = `perfer -d #{$duration} -c 10 -t 1 -k -b 1 -j -m 1000 -l 50,90,99,99.9 http://#{ip}:3000#{route}`
+    out = `perfer -d #{$duration} -c 10 -t #{$threads} -k -b 1 -j -m 1000 -l 50,90,99,99.9 http://#{ip}:3000#{route}`
     puts "#{target.name} - #{route} latency output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 
@@ -189,7 +190,7 @@ def benchmark(target, ip)
   }
 
   ['/graphql'].each { |route|
-    out = `perfer -d #{$duration} -c #{$connections} -t 1 -k -b 4 -j -a 'Content-Type: application/graphql' -p 'mutation { repeat(word: "Hello")}' http://#{ip}:3000#{route}`
+    out = `perfer -d #{$duration} -c #{$connections} -t #{$threads} -k -b 4 -j -a 'Content-Type: application/graphql' -p 'mutation { repeat(word: "Hello")}' http://#{ip}:3000#{route}`
     puts "#{target.name} - POST #{route} maximum rate output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 
@@ -199,7 +200,7 @@ def benchmark(target, ip)
 
     # Make a separate run for latency are a leisurely rate to determine the
     # latency when under normal load.
-    out = `perfer -d #{$duration} -c 10 -t 1 -k -b 1 -j -m 1000 -l 50,90,99,99.9 http://#{ip}:3000#{route}`
+    out = `perfer -d #{$duration} -c 10 -t #{$threads} -k -b 1 -j -m 1000 -l 50,90,99,99.9 http://#{ip}:3000#{route}`
     puts "#{target.name} - #{route} latency output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 
@@ -281,6 +282,7 @@ $out.puts("- Last updates: #{Time.now.strftime("%Y-%m-%d")}")
 $out.puts("- OS: #{`uname -s`.rstrip} (version: #{`uname -r`.rstrip}, arch: #{`uname -m`.rstrip})")
 $out.puts("- CPU Cores: #{Etc.nprocessors}")
 $out.puts("- Connections: #{$connections}")
+$out.puts("- Benchmark Tool Threads: #{$threads}")
 $out.puts("- Duration: #{$duration} seconds")
 $out.puts()
 

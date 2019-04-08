@@ -40,7 +40,7 @@ bottom of this page.
 + [Crystal](https://crystal-lang.org) as some `built-in` tools are made in this language
 + [Ruby](https://www.ruby-lang.org) for tooling
 + [Docker](https://www.docker.com) as **frameworks** are `isolated` into _containers_
-+ [perfer](https://github.com/ohler55/perfer) the benchmarking tool, `>= 1.5.1`
++ [perfer](https://github.com/ohler55/perfer) the benchmarking tool, `>= 1.5.2`
 + [Oj](https://github.com/ohler55/oj) is needed by the benchmarking Ruby script, `>= 3.7`
 
 ## Usage

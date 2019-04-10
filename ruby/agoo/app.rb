@@ -3,7 +3,9 @@
 require 'etc'
 require 'agoo'
 
-worker_count = Etc.nprocessors() * 3
+# worker_count must be set to 1 for state preservation on the mutation calls.
+#worker_count = Etc.nprocessors() * 3
+worker_count = 1
 Agoo::Server.init(3000, '.', thread_count: 1, worker_count: worker_count, graphql: '/graphql')
 
 # Empty response.
@@ -24,8 +26,12 @@ class Query
 end
 
 class Mutation
-  def double(args={})
-    args['number'] * 2
+  def initialize
+    @like_count = 0
+    @lock = Mutex.new
+  end
+  def like(args={})
+    @lock.synchronize { @like_count += 1 }
   end
 end
 
@@ -48,8 +54,8 @@ type Query {
   hello(name: String!): String
 }
 type Mutation {
-  "Double the number provided."
-  double(number: Int!): Int
+  "Increment the like-count and return the new value."
+  like: Int
 }
 ^)
 }

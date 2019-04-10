@@ -12,7 +12,7 @@ describe "get on /" do
   remote_ip = get_ip(name)
   r = HTTP::Client.get "http://#{remote_ip}:3000/"
   it "should reply with a 200 status code" { r.status_code.should eq 200 }
-  it "should rerturn an empty body" { r.body.should eq "" }
+  it "should return an empty body" { r.body.should eq "" }
 end
 
 describe "get on /graphql?query={hello}" do
@@ -25,10 +25,12 @@ end
 
 describe "post on /graphql" do
   name = ENV["FRAMEWORK"]
-  body = %|mutation { double(number: 2) }|
+  body = %|mutation { like }|
   headers = HTTP::Headers { "Content-Type" => "application/graphql" }
   remote_ip = get_ip(name)
-  r = HTTP::Client.post("http://#{remote_ip}:3000/graphql", headers: headers, body: body)
-  it "should reply with a 200" { r.status_code.should eq 200 }
-  it %|should rerturn {"data":{"double":4}}| { r.body.should eq %|{"data":{"double":4}}| }
+  10.times { |i|
+    r = HTTP::Client.post("http://#{remote_ip}:3000/graphql", headers: headers, body: body)
+    it "should reply with a 200" { r.status_code.should eq 200 }
+    it %|should return {"data":{"like":#{i+1}}}| { r.body.should eq %|{"data":{"like":#{i+1}}}| }
+  }
 end

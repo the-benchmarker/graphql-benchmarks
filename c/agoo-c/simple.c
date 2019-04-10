@@ -1,7 +1,10 @@
 // Copyright 2019 by Peter Ohler, All Rights Reserved
 
+#include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#define HAVE_STDATOMIC_H	1
 
 #include <agoo.h>
 #include <agoo/gqlintro.h>
@@ -13,15 +16,17 @@
 #include <agoo/sdl.h>
 #include <agoo/server.h>
 
-static agooText		emptyResp = NULL;
+static agooText			emptyResp = NULL;
+static atomic_int_fast64_t	like_count = 0;
+
 
 static const char	*sdl = "\n\
 type Query {\n\
   hello(name: String!): String\n\
 }\n\
 type Mutation {\n\
-  \"Double the number provided.\"\n\
-  double(number: Int!): Int\n\
+  \"Increment the like-count and return the new value.\"\n\
+  like: Int\n\
 }\n";
 
 static void
@@ -77,15 +82,12 @@ static struct _gqlCobj	query_obj = {
 ///// Mutation type setup
 
 static int
-mutation_double(agooErr err, gqlDoc doc, gqlCobj obj, gqlField field, gqlSel sel, gqlValue result, int depth) {
+mutation_like(agooErr err, gqlDoc doc, gqlCobj obj, gqlField field, gqlSel sel, gqlValue result, int depth) {
     const char	*key = sel->name;
-    gqlValue	nv = gql_extract_arg(err, field, sel, "number");
     gqlValue	val;
+    int64_t	count = atomic_fetch_add(&like_count, 1);
 
-    if (NULL == nv || &gql_int_type != nv->type) {
-	return agoo_err_set(err, AGOO_ERR_EVAL, "number must be an Int.");
-    }
-    val = gql_int_create(err, nv->i * 2);
+    val = gql_int_create(err, (int)(count + 1));
     if (NULL != sel->alias) {
 	key = sel->alias;
     }
@@ -93,7 +95,7 @@ mutation_double(agooErr err, gqlDoc doc, gqlCobj obj, gqlField field, gqlSel sel
 }
 
 static struct _gqlCmethod	mutation_methods[] = {
-    { .key = "double", .func = mutation_double },
+    { .key = "like", .func = mutation_like },
     { .key = NULL,     .func = NULL },
 };
 
@@ -111,6 +113,8 @@ int
 main(int argc, char **argv) {
     struct _agooErr	err = AGOO_ERR_INIT;
     int			port = 3000;
+
+    atomic_init(&like_count, 0);
 
     agoo_io_loop_ratio = 0.5;   // higher values mean more IO threads
     if (AGOO_ERR_OK != agoo_init(&err, "simple")) {

@@ -20,8 +20,8 @@ type Query {
   hello(name: String!): String
 }
 type Mutation {
-  "Double the number provided."
-  double(number: Int!): Int
+  "Increment the like-count and return the new value."
+  like: Int
 }
 ```
 
@@ -65,19 +65,20 @@ When set an HTTP request:
 
  - Method: POST
  - Route: `/graphql`
- - Request Body: `mutation{double(number:3)}`
+ - Request Body: `mutation{like}`
  - Header: `Content-Type: application/graphql`
 
-An example using `curl` is `curl -H 'Content-Type: application/graphql' -d 'mutation {double(number: 3)}' 172.17.0.2:3000/graphql`
+An example using `curl` is `curl -H 'Content-Type: application/graphql' -d 'mutation {like}' 172.17.0.2:3000/graphql`
 
 Must respond with:
 
  - Status Code: `200`
- - Response Body: `{"data":{"double":6}}`
+ - Response Body: `{"data":{"like":3}}`
  - Header Check for: `Content-Type: application/json`
 
-The returned value must be double the provided value. In the example the
-provided value is 3.
+The returned value must be one more than the previous returned value
+and is the number of times the mutation has been called since
+starting.
 
 + All framework **MUST** contain a `Dockerfile`
 

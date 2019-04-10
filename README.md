@@ -12,27 +12,28 @@ bottom of this page.
 ### Top 5 Ranking
 |     | Requests/second |     | Latency (milliseconds) |
 |:---:| --------------- |:---:| ---------------------- |
-| :one: | agoo-c (c) | :one: | agoo (ruby) |
-| :two: | agoo (ruby) | :two: | agoo-c (c) |
+| :one: | agoo-c (c) | :one: | agoo-c (c) |
+| :two: | agoo (ruby) | :two: | agoo (ruby) |
 
 #### Parameters
-- Last updates: 2019-04-07
+- Last updates: 2019-04-10
 - OS: Linux (version: 5.0.7-050007-generic, arch: x86_64)
 - CPU Cores: 12
 - Connections: 1000
+- Benchmark Tool Threads: 1
 - Duration: 15 seconds
 
 ### Rate (requests per second)
 | Language (Runtime) | Framework (Middleware) | Requests/second | Throughput (MB/sec) |
 | -------------------| ---------------------- | ---------------:| -------------------:|
-| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 321957 | 34.71 MB/sec |
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 256132 | 30.52 MB/sec |
+| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 329723 | 24.34 MB/sec |
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 251596 | 20.19 MB/sec |
 
 ### Latency
 | Language (Runtime) | Framework (Middleware) | Average Latency | Mean Latency | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation |
 | ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| ---------------:| -----------------:| ------------------:|
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 0.10 ms | 0.10 ms | 0.13 ms | 0.17 ms | 0.23 ms | 0.03 |
-| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 0.92 ms | 0.71 ms | 2.04 ms | 2.70 ms | 2.72 ms | 0.84 |
+| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 1.32 ms | 0.71 ms | 3.69 ms | 3.73 ms | 3.74 ms | 1.45 |
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 0.78 ms | 1.02 ms | 1.03 ms | 1.05 ms | 1.05 ms | 0.50 |
 <!-- Result till here -->
 
 ## Requirements

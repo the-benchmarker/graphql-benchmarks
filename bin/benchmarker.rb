@@ -190,7 +190,7 @@ def benchmark(target, ip)
   }
 
   ['/graphql'].each { |route|
-    out = `perfer -d #{$duration} -c #{$connections} -t #{$threads} -k -b 4 -j -a 'Content-Type: application/graphql' -p 'mutation { repeat(word: "Hello")}' http://#{ip}:3000#{route}`
+    out = `perfer -d #{$duration} -c #{$connections} -t #{$threads} -k -b 4 -j -a 'Content-Type: application/graphql' -p 'mutation { like }' http://#{ip}:3000#{route}`
     puts "#{target.name} - POST #{route} maximum rate output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 
@@ -247,6 +247,8 @@ $targets.each { |target|
     end
     raise error unless error.nil?
     puts "Server on #{target.name} has responded." if 1 < $verbose
+
+    sleep 2
 
     benchmark(target, remote_ip)
 

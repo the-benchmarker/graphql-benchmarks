@@ -32,8 +32,8 @@ bottom of this page.
 ### Latency
 | Language (Runtime) | Framework (Middleware) | Average Latency | Mean Latency | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation |
 | ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| ---------------:| -----------------:| ------------------:|
-| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 1.17 ms | 0.71 ms | 3.35 ms | 3.73 ms | 3.76 ms | 1.26 |
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 0.69 ms | 1.03 ms | 1.03 ms | 1.05 ms | 1.07 ms | 0.58 |
+| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 1.17 ms | **0.71 ms** | 3.35 ms | 3.73 ms | 3.76 ms | 1.26 |
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 0.69 ms | **1.03 ms** | 1.03 ms | 1.05 ms | 1.07 ms | 0.58 |
 <!-- Result till here -->
 
 ## Requirements
@@ -50,13 +50,13 @@ bottom of this page.
 
 + Build containers
 
-All at once
+> build all
 
 ```sh
 build.rb
 ```
 
-or one by one.
+> build just named targets
 
 ```sh
 build.rb [target] [target] ...

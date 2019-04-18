@@ -38,40 +38,42 @@ bottom of this page.
 
 ## Requirements
 
-+ [Crystal](https://crystal-lang.org) as some `built-in` tools are made in this language
 + [Ruby](https://www.ruby-lang.org) for tooling
 + [Docker](https://www.docker.com) as **frameworks** are `isolated` into _containers_
 + [perfer](https://github.com/ohler55/perfer) the benchmarking tool, `>= 1.5.3`
 + [Oj](https://github.com/ohler55/oj) is needed by the benchmarking Ruby script, `>= 3.7`
++ [RSpec](https://rubygems.org/gems/rspec) is needed for testing
 
 ## Usage
 
-+ Install all dependencies
-
-```sh
-shards install
-```
-
-+ Build internal tools
-
-```sh
-shards build
-```
++ Install all dependencies, Ruby, Docker, Perfer, and Oj.
 
 + Build containers
 
-> jobs are either languages (example : crystal) or frameworks (example : router.cr)
+All at once
 
 ```sh
-bin/neph [job1] [job2] [job3] ...
+build.rb
 ```
 
-+ Start the benchmark ....
-
-> tools is a list of language / framework to challenge (example : ruby kemal amber go python)
+or one by one.
 
 ```sh
-bin/benchmarker.rb [tools]
+build.rb [target] [target] ...
+```
+
++ Runs the tests (optional)
+
+```sh
+rspec spec.rb
+```
+
++ Run the benchmarks
+
+> frameworks is an options list of frameworks or languages run (example: ruby agoo-c)
+
+```sh
+benchmarker.rb [frameworks...]
 ```
 
 ## Methodology

@@ -82,6 +82,4 @@ starting.
 
 + All framework **MUST** contain a `Dockerfile`
 
-+ All framework **MUST** be referenced in :
-   + `FRAMEWORKS.yml`, a description of each framework
-   + `neph.yaml`, a target group for the language, and a target for the framework
++ All framework **MUST** contain a `info.yml`

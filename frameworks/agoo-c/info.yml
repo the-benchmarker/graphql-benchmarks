@@ -4,3 +4,4 @@ version: "0.5"
 language: "c"
 language-version: "11"
 bench-adjust: 1.0
+post-format: graphql

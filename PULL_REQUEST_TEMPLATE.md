@@ -2,16 +2,11 @@ Before submitting your PR, please review the following checklist :
 
 ## If you are adding a framework
 
-+ [ ] Please check configuration files
-   + [ ] `neph.yml`, for [neph](http://tbrand.github.io/neph) job processing
-   + [ ] `FRAMEWORKS.yml`, for **frameworks** list
-   + [ ] `travis.yml`, for CI
-+ [ ] A `Dockerfile` exists ?
-+ [ ] All tests passes ?
++ [ ] Does a `info.yml` file exist in your directory?
++ [ ] Does a `Dockerfile` exists?
++ [ ] Do all tests pass?
 ~~~
 export FRAMEWORK=<MY_FRAMEWORK>
-shards install
-shards build --release
-bin/neph ${FRAMEWORK}
-crystal spec
+build.rb ${FRAMEWORK}
+rspec spec.rb
 ~~~

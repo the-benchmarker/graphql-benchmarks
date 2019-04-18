@@ -39,11 +39,11 @@ class Target
   attr_accessor :bytes
   attr_accessor :adjust
 
-  def initialize(lang, name, info)
-    @name = name
-    @lang = lang
+  def initialize(info)
+    @name = info['name']
     @version = info['version']
-    @langver = info['language']
+    @lang = info['language']
+    @langver = info['language-version']
     if info.has_key?('github')
       @link = "github.com/#{info['github']}"
     else info.has_key?('website')
@@ -51,6 +51,9 @@ class Target
     end
     @adjust = info['bench-adjust']
     @adjust = 1.0 if @adjust.nil?
+    @experimental = info['experimental']
+    @post_format = info['post-format']
+
     @duration = 0.0
     @requests = 0
     @bytes = 0
@@ -119,23 +122,22 @@ class Target
 
 end
 
-### Get up the targets ########################################################
-
-YAML.load(File.read("FRAMEWORKS.yml")).each { |lang, frameworks|
-  frameworks.each { |name, info|
-    target = Target.new(lang, name, info)
-    if $languages.has_key?(lang)
-      language_targets = $languages[lang]
-    else
-      language_targets = {}
-      $languages[lang] = language_targets
-    end
-    language_targets[name] = target
-  }
-}
+### Collect the frameworks ########################################################
 
 $targets = []
 
+root = File.expand_path('../frameworks', __FILE__)
+Dir.glob(root + '/*').each { |dir|
+  base = File.basename(dir)
+  info = YAML.load(File.read(dir + "/info.yml"))
+  next if !$all && info['experimental']
+  if $target_names.nil? || 0 == $target_names.size || $target_names.include?(info['name']) || $target_names.include?(info['language'])
+    $targets << Target.new(info)
+  end
+}
+
+# TBD error if target not found, need to marks them off
+=begin
 $target_names.each { |target_name|
   if target_name.include?(':')
     lang, name = target_name.split(':')
@@ -161,6 +163,7 @@ if $targets.empty?
     }
   }
 end
+=end
 
 ### Running the benchmarks ####################################################
 

@@ -136,35 +136,6 @@ Dir.glob(root + '/*').each { |dir|
   end
 }
 
-# TBD error if target not found, need to marks them off
-=begin
-$target_names.each { |target_name|
-  if target_name.include?(':')
-    lang, name = target_name.split(':')
-    target = $languages[lang][name] if $languages.has_key?(lang)
-    raise StandardException.new("#{target_name} not found") if target.nil?
-    $targets << target
-  elsif $languages.has_key?(target_name) # could be name of framework or language
-    $languages[target_name].each { |_, target|
-      $targets << target
-    }
-  else
-    $languages.each { |_, frameworks|
-      $targets << frameworks[target_name] if frameworks.has_key?(target_name)
-    }
-    raise StandardError.new("#{target_name} not found") if $targets.empty?
-  end
-}
-
-if $targets.empty?
-  $languages.each { |_, frameworks|
-    frameworks.each { |_, target|
-      $targets << target
-    }
-  }
-end
-=end
-
 ### Running the benchmarks ####################################################
 
 def benchmark(target, ip)
@@ -292,7 +263,6 @@ $out.puts("- Last updates: #{Time.now.strftime("%Y-%m-%d")}")
 $out.puts("- OS: #{`uname -s`.rstrip} (version: #{`uname -r`.rstrip}, arch: #{`uname -m`.rstrip})")
 $out.puts("- CPU Cores: #{Etc.nprocessors}")
 $out.puts("- Connections: #{$connections}")
-$out.puts("- Benchmark Tool Threads: #{$threads}")
 $out.puts("- Duration: #{$duration} seconds")
 $out.puts()
 
@@ -308,7 +278,7 @@ $out.puts('### Latency')
 $out.puts('| Language (Runtime) | Framework (Middleware) | Average Latency | Mean Latency | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation |')
 $out.puts('| ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| ---------------:| -----------------:| ------------------:|')
 lats.each { |t|
-  $out.puts("| %s (%s) | [%s](%s) (%s) | %.2f ms | %.2f ms | %.2f ms | %.2f ms | %.2f ms | %.2f |" %
+  $out.puts("| %s (%s) | [%s](%s) (%s) | %.2f ms | **%.2f ms** | %.2f ms | %.2f ms | %.2f ms | %.2f |" %
 	    [t.lang, t.langver, t.name, t.link, t.version, t.latency_average, t.latency_mean, t.latency_90, t.latency_99, t.latency_999, t.latency_stdev])
 }
 

@@ -16,24 +16,24 @@ bottom of this page.
 | :two: | agoo (ruby) | :two: | agoo (ruby) |
 
 #### Parameters
-- Last updates: 2019-04-10
-- OS: Linux (version: 5.0.7-050007-generic, arch: x86_64)
+- Last updates: 2019-04-17
+- OS: Linux (version: 5.0.8-050008-generic, arch: x86_64)
 - CPU Cores: 12
 - Connections: 1000
-- Benchmark Tool Threads: 1
+- Benchmark Tool Threads: 4
 - Duration: 15 seconds
 
 ### Rate (requests per second)
 | Language (Runtime) | Framework (Middleware) | Requests/second | Throughput (MB/sec) |
 | -------------------| ---------------------- | ---------------:| -------------------:|
-| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 329723 | 24.34 MB/sec |
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 251596 | 20.19 MB/sec |
+| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 515182 | 31.87 MB/sec |
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 192026 | 15.07 MB/sec |
 
 ### Latency
 | Language (Runtime) | Framework (Middleware) | Average Latency | Mean Latency | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation |
 | ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| ---------------:| -----------------:| ------------------:|
-| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 1.32 ms | 0.71 ms | 3.69 ms | 3.73 ms | 3.74 ms | 1.45 |
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 0.78 ms | 1.02 ms | 1.03 ms | 1.05 ms | 1.05 ms | 0.50 |
+| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 1.17 ms | 0.71 ms | 3.35 ms | 3.73 ms | 3.76 ms | 1.26 |
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 0.69 ms | 1.03 ms | 1.03 ms | 1.05 ms | 1.07 ms | 0.58 |
 <!-- Result till here -->
 
 ## Requirements
@@ -41,7 +41,7 @@ bottom of this page.
 + [Crystal](https://crystal-lang.org) as some `built-in` tools are made in this language
 + [Ruby](https://www.ruby-lang.org) for tooling
 + [Docker](https://www.docker.com) as **frameworks** are `isolated` into _containers_
-+ [perfer](https://github.com/ohler55/perfer) the benchmarking tool, `>= 1.5.2`
++ [perfer](https://github.com/ohler55/perfer) the benchmarking tool, `>= 1.5.3`
 + [Oj](https://github.com/ohler55/oj) is needed by the benchmarking Ruby script, `>= 3.7`
 
 ## Usage
@@ -113,7 +113,7 @@ The `perfer` benchmarking tool is used for these reasons:
 - A rate can be specified for latency determination.
 - JSON output makes parsing output easier.
 - Fewer threads are needed by `perfer` leaving more for the application being benchmarked.
-- `perfer` is faster than `wrk` albeit only slightly.
+- `perfer` is faster than `wrk` albeit only slightly
 
 ## How to Contribute
 

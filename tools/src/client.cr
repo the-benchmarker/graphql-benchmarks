@@ -40,7 +40,6 @@ class Client
   def run
     if @method == "POST"
       command = "wrk -H 'Connection: keep-alive' --latency -d #{@duration}s -s #{PIPELINE_POST} -c #{@connections.to_i} --timeout 8 -t #{@threads} #{@url}"
-      #command = "perfer -d #{@duration} -c #{@connections.to_i} -t #{@threads} -j -k -b 3 #{@url}"
     else
       command = "wrk -H 'Connection: keep-alive' --latency -d #{@duration}s -s #{PIPELINE_GET} -c #{@connections.to_i} --timeout 8 -t #{@threads} #{@url}"
     end

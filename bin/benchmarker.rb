@@ -8,7 +8,7 @@ require 'yaml'
 
 $verbose = 1
 $connections = 1000
-$threads = 1 # a single thread gives the best results up to including 12 cores.
+$threads = Etc.nprocessors() / 3
 $duration = 15
 $record = false
 
@@ -37,6 +37,7 @@ class Target
   attr_accessor :duration
   attr_accessor :requests
   attr_accessor :bytes
+  attr_accessor :adjust
 
   def initialize(lang, name, info)
     @name = name
@@ -48,6 +49,8 @@ class Target
     else info.has_key?('website')
       @link = info['website']
     end
+    @adjust = info['bench-adjust']
+    @adjust = 1.0 if @adjust.nil?
     @duration = 0.0
     @requests = 0
     @bytes = 0
@@ -162,10 +165,12 @@ end
 ### Running the benchmarks ####################################################
 
 def benchmark(target, ip)
+  thread_count = ($threads * target.adjust).to_i
+  thread_count = 1 if 1 > thread_count
   ['/', '/graphql?query={hello\(name:"world"\)}'].each { |route|
 
     # First run at full throttle to get the maximum rate and throughput.
-    out = `perfer -d #{$duration} -c #{$connections} -t #{$threads} -k -b 4 -j http://#{ip}:3000#{route}`
+    out = `perfer -d #{$duration} -c #{$connections} -t #{thread_count} -k -b 5 -j http://#{ip}:3000#{route}`
     puts "#{target.name} - #{route} maximum rate output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 
@@ -175,7 +180,7 @@ def benchmark(target, ip)
 
     # Make a separate run for latency are a leisurely rate to determine the
     # latency when under normal load.
-    out = `perfer -d #{$duration} -c 10 -t #{$threads} -k -b 1 -j -m 1000 -l 50,90,99,99.9 http://#{ip}:3000#{route}`
+    out = `perfer -d #{$duration} -c 10 -t 1 -k -b 1 -j -m 1000 -l 50,90,99,99.9 http://#{ip}:3000#{route}`
     puts "#{target.name} - #{route} latency output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 
@@ -190,7 +195,7 @@ def benchmark(target, ip)
   }
 
   ['/graphql'].each { |route|
-    out = `perfer -d #{$duration} -c #{$connections} -t #{$threads} -k -b 4 -j -a 'Content-Type: application/graphql' -p 'mutation { like }' http://#{ip}:3000#{route}`
+    out = `perfer -d #{$duration} -c #{$connections} -t #{thread_count} -k -b 5 -j -a 'Content-Type: application/graphql' -p 'mutation { like }' http://#{ip}:3000#{route}`
     puts "#{target.name} - POST #{route} maximum rate output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 
@@ -200,7 +205,7 @@ def benchmark(target, ip)
 
     # Make a separate run for latency are a leisurely rate to determine the
     # latency when under normal load.
-    out = `perfer -d #{$duration} -c 10 -t #{$threads} -k -b 1 -j -m 1000 -l 50,90,99,99.9 http://#{ip}:3000#{route}`
+    out = `perfer -d #{$duration} -c 10 -t 1 -k -b 1 -j -m 1000 -l 50,90,99,99.9 http://#{ip}:3000#{route}`
     puts "#{target.name} - #{route} latency output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 

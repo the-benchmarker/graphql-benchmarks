@@ -182,25 +182,25 @@ end
 def benchmark(host, threads, connections, duration, target, store) : Filter
   latency = 0.0
   requests = 0.0
-  duration = 5
   raw = `#{CLIENT} --url http://#{host}:3000 --init`
   result = Result.from_json(raw)
   parser = JSON::PullParser.new(raw)
   results = Hash(String, Hash(String, Float64)).new(parser)
 
-  ["/graphql?query={hello}"].each do |route|
-    #cmd = "perfer -d #{duration} -c #{connections.to_i.to_s} -t 1 -k -b 4 -l 50,90,99,99.9 -j http://#{host}:3000#{route}"
-    cmd = "perfer -d #{duration} -c #{connections.to_i} -t 1 -k -b 4 -j http://#{host}:3000#{route}"
-    io = IO::Memory.new
-    Process.run(cmd, shell: true, error: io, output: io)
-    raw = io.to_s
-    puts "*** raw: #{raw}"
-    result = Bench.from_json(raw)
-
-    # TBD merge with results
-
+  ["/", "/graphql?query={hello}"].each do |route|
     raw = `#{CLIENT} --duration #{duration} --connections #{connections.to_i.to_s} --threads #{threads} --url http://#{host}:3000#{route}`
-    puts raw
+    result = Result.from_json(raw)
+    parser = JSON::PullParser.new(raw)
+    data = Hash(String, Hash(String, Float64)).new(parser)
+    data.each do |key, metrics|
+      results[key].merge!(metrics) { |_, v1, v2| v1 + (v2/3) }
+    end
+    requests = requests + result.request.per_second
+    latency = latency + result.percentile.fifty
+  end
+
+  ["/graphql"].each do |route|
+    raw = `#{CLIENT} --method POST --duration #{duration} --connections #{connections.to_i.to_s} --threads #{threads} --url http://#{host}:3000#{route}`
     result = Result.from_json(raw)
     parser = JSON::PullParser.new(raw)
     data = Hash(String, Hash(String, Float64)).new(parser)
@@ -209,56 +209,8 @@ def benchmark(host, threads, connections, duration, target, store) : Filter
       results[key].merge!(metrics) { |_, v1, v2| v1 + (v2/3) }
     end
     requests = requests + result.request.per_second
-    puts "*** data: #{data}"
-    puts "*** results: #{results}"
-
-    #latency = latency + result.percentile.fifty
+    latency = latency + result.percentile.fifty
   end
-
-#  ["/", "/graphql?query={hello}"].each do |route|
-#    cmd = "perfer -d #{duration} -c 100 -t 1 -k -b 1 -m 1000 -g 160x20 http://#{host}:3000#{route}"
-#    io = IO::Memory.new
-#    Process.run(cmd, shell: true, error: io, output: io)
-#    puts io.to_s
-#
-#    raw = `#{CLIENT} --duration #{duration} --connections 100 --threads #{threads} --url http://#{host}:3000#{route}`
-#    puts raw
-#    result = Result.from_json(raw)
-#    parser = JSON::PullParser.new(raw)
-#    data = Hash(String, Hash(String, Float64)).new(parser)
-#    data.each do |key, metrics|
-#      next unless key == "latency" || key == "percentile"
-#      results[key].merge!(metrics) { |_, v1, v2| v1 + (v2/3) }
-#    end
-#    latency = latency + result.percentile.fifty
-#    sleep(5)
-#  end
-#
-#  ["/graphql"].each do |route|
-#    raw = `#{CLIENT} --method POST --duration #{duration} --connections #{connections.to_i.to_s} --threads #{threads} --url http://#{host}:3000#{route}`
-#    puts raw
-#    result = Result.from_json(raw)
-#    parser = JSON::PullParser.new(raw)
-#    data = Hash(String, Hash(String, Float64)).new(parser)
-#    data.each do |key, metrics|
-#      next if key == "latency" || key == "percentile"
-#      results[key].merge!(metrics) { |_, v1, v2| v1 + (v2/3) }
-#    end
-#    requests = requests + result.request.per_second
-#    #latency = latency + result.percentile.fifty
-#  end
-#
-#  ["/graphql"].each do |route|
-#    raw = `#{CLIENT} --method POST --duration #{duration} --connections 1 --threads 1 --url http://#{host}:3000#{route}`
-#    result = Result.from_json(raw)
-#    parser = JSON::PullParser.new(raw)
-#    data = Hash(String, Hash(String, Float64)).new(parser)
-#    data.each do |key, metrics|
-#      next unless key == "latency" || key == "percentile"
-#      results[key].merge!(metrics) { |_, v1, v2| v1 + (v2/3) }
-#    end
-#    latency = latency + result.percentile.fifty
-#  end
 
   store.set("#{target.lang}:#{target.name}", results.to_json)
 

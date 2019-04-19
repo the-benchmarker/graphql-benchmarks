@@ -192,11 +192,12 @@ def benchmark(target, ip)
 		       spread['99.00'],
 		       spread['99.90'])
   }
+  [target.rate, target.latency_mean]
 end
 
 $targets.each { |target|
   begin
-    puts "starting #{target.name}" if 1 < $verbose
+    puts "#{target.name}" if 1 < $verbose
     cid = `docker run -td #{target.name}`.strip
     remote_ip = nil
     # Dual purpose, get the IP address in the container for the server and
@@ -208,7 +209,7 @@ $targets.each { |target|
       sleep 1
     end
     raise StandardError.new("failed to start docker for #{target.name}") if remote_ip.nil? || remote_ip.empty?
-    puts "Docker container for #{target.name} is #{cid}." if 1 < $verbose
+    puts "Docker container for #{target.name} is #{cid}." if 2 < $verbose
 
     # Wait for the server in the container to be up and responsive before
     # continuing using the same technique of avoiding a race condition.
@@ -225,17 +226,16 @@ $targets.each { |target|
       end
     end
     raise error unless error.nil?
-    puts "Server on #{target.name} has responded." if 1 < $verbose
+    puts "Server on #{target.name} has responded." if 2 < $verbose
 
     sleep 2
 
     benchmark(target, remote_ip)
-
+    puts "  Benchmarks for #{target.name} - rate: #{target.rate.to_i} req/sec  latency: #{target.latency_mean.round(2)} ms." if 1 < $verbose
   ensure
-    puts "Stopping Docker container #{cid} for #{target.name}." if 1 < $verbose
+    puts "Stopping Docker container #{cid} for #{target.name}." if 2 < $verbose
     `docker stop #{cid}`
   end
-  puts "Benchmarks for #{target.name} are done." if 1 < $verbose
 }
 
 ### Display results ###########################################################

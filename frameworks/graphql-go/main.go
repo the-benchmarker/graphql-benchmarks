@@ -92,7 +92,7 @@ func main() {
 	})
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {})
 
-	if err = http.ListenAndServe(":3003", nil); err != nil {
+	if err = http.ListenAndServe(":3000", nil); err != nil {
 		fmt.Printf("*-*-* Server failed. %s\n", err)
 	}
 }

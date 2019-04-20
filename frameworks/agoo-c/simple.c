@@ -116,7 +116,7 @@ main(int argc, char **argv) {
 
     atomic_init(&like_count, 0);
 
-    agoo_io_loop_ratio = 0.5;   // higher values mean more IO threads
+    agoo_io_loop_ratio = 0.6;   // higher values mean more IO threads
     if (AGOO_ERR_OK != agoo_init(&err, "simple")) {
 	printf("Failed to initialize Agoo. %s\n", err.msg);
 	return err.code;

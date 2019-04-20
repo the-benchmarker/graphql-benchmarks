@@ -12,28 +12,30 @@ bottom of this page.
 ### Top 5 Ranking
 |     | Requests/second |     | Latency (milliseconds) |
 |:---:| --------------- |:---:| ---------------------- |
-| :one: | agoo-c (c) | :one: | agoo-c (c) |
-| :two: | agoo (ruby) | :two: | agoo (ruby) |
+| :one: | agoo-c (c) | :one: | agoo (ruby) |
+| :two: | agoo (ruby) | :two: | graphql-go (go) |
+| :three: | graphql-go (go) | :three: | agoo-c (c) |
 
 #### Parameters
-- Last updates: 2019-04-17
+- Last updates: 2019-04-19
 - OS: Linux (version: 5.0.8-050008-generic, arch: x86_64)
 - CPU Cores: 12
 - Connections: 1000
-- Benchmark Tool Threads: 4
 - Duration: 15 seconds
 
 ### Rate (requests per second)
 | Language (Runtime) | Framework (Middleware) | Requests/second | Throughput (MB/sec) |
 | -------------------| ---------------------- | ---------------:| -------------------:|
-| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 515182 | 31.87 MB/sec |
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 192026 | 15.07 MB/sec |
+| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 514094 | 32.38 MB/sec |
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 251579 | 22.16 MB/sec |
+| go (1.12) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | 139493 | 12.99 MB/sec |
 
 ### Latency
 | Language (Runtime) | Framework (Middleware) | Average Latency | Mean Latency | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation |
 | ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| ---------------:| -----------------:| ------------------:|
-| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 1.17 ms | **0.71 ms** | 3.35 ms | 3.73 ms | 3.76 ms | 1.26 |
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 0.69 ms | **1.03 ms** | 1.03 ms | 1.05 ms | 1.07 ms | 0.58 |
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 0.57 ms | **0.06 ms** | 1.02 ms | 7.35 ms | 7.38 ms | 1.52 |
+| go (1.12) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | 0.08 ms | **0.08 ms** | 0.09 ms | 0.18 ms | 0.34 ms | 0.03 |
+| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 1.19 ms | **0.69 ms** | 3.98 ms | 4.03 ms | 4.04 ms | 1.41 |
 <!-- Result till here -->
 
 ## Requirements

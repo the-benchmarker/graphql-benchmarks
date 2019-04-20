@@ -6,7 +6,7 @@ require 'agoo'
 # worker_count must be set to 1 for state preservation on the mutation calls.
 #worker_count = Etc.nprocessors() * 3
 worker_count = 1
-Agoo::Server.init(3000, '.', thread_count: 1, worker_count: worker_count, graphql: '/graphql')
+Agoo::Server.init(3000, '.', thread_count: 2, worker_count: worker_count, graphql: '/graphql')
 
 # Empty response.
 class Empty

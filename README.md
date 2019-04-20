@@ -17,25 +17,25 @@ bottom of this page.
 | :three: | graphql-go (go) | :three: | agoo-c (c) |
 
 #### Parameters
-- Last updates: 2019-04-19
+- Last updates: 2019-04-20
 - OS: Linux (version: 5.0.8-050008-generic, arch: x86_64)
 - CPU Cores: 12
 - Connections: 1000
-- Duration: 15 seconds
+- Duration: 20 seconds
 
 ### Rate (requests per second)
 | Language (Runtime) | Framework (Middleware) | Requests/second | Throughput (MB/sec) |
 | -------------------| ---------------------- | ---------------:| -------------------:|
-| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 514094 | 32.38 MB/sec |
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 251579 | 22.16 MB/sec |
-| go (1.12) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | 139493 | 12.99 MB/sec |
+| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 507990 | 32.22 MB/sec |
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 237539 | 20.87 MB/sec |
+| go (1.12) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | 139598 | 12.97 MB/sec |
 
 ### Latency
 | Language (Runtime) | Framework (Middleware) | Average Latency | Mean Latency | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation |
 | ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| ---------------:| -----------------:| ------------------:|
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 0.57 ms | **0.06 ms** | 1.02 ms | 7.35 ms | 7.38 ms | 1.52 |
-| go (1.12) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | 0.08 ms | **0.08 ms** | 0.09 ms | 0.18 ms | 0.34 ms | 0.03 |
-| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 1.19 ms | **0.69 ms** | 3.98 ms | 4.03 ms | 4.04 ms | 1.41 |
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 0.29 ms | **0.07 ms** | 1.00 ms | 1.04 ms | 1.05 ms | 0.46 |
+| go (1.12) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | 0.09 ms | **0.08 ms** | 0.10 ms | 0.19 ms | 0.37 ms | 0.03 |
+| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 0.53 ms | **0.09 ms** | 0.71 ms | 2.37 ms | 2.38 ms | 0.86 |
 <!-- Result till here -->
 
 ## Requirements
@@ -48,7 +48,7 @@ bottom of this page.
 
 ## Usage
 
-+ Install all dependencies, Ruby, Docker, Perfer, and Oj.
++ Install all dependencies, Ruby, Docker, Perfer, Oj, and RSpec.
 
 + Build containers
 

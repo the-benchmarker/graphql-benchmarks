@@ -7,4 +7,4 @@ ENV GO111MODULE=on
 RUN go build .
 
 EXPOSE 3000
-CMD [ "go", "run", "main.go" ]
+CMD [ "./app" ]

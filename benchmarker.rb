@@ -9,7 +9,7 @@ require 'yaml'
 $verbose = 1
 $connections = 1000
 $threads = Etc.nprocessors() / 3
-$duration = 15
+$duration = 20
 $record = false
 
 opts = OptionParser.new(%{Usage: benchmarker.rb [options] <target>...
@@ -154,7 +154,7 @@ def benchmark(target, ip)
 
     # Make a separate run for latency are a leisurely rate to determine the
     # latency when under normal load.
-    out = `perfer -d #{$duration} -c 10 -t 2 -k -b 1 -j -m 1000 -l 50,90,99,99.9 http://#{ip}:3000#{route}`
+    out = `perfer -d #{$duration} -c 10 -t 1 -k -b 1 -j -m 1000 -l 50,90,99,99.9 http://#{ip}:3000#{route}`
     puts "#{target.name} - #{route} latency output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 
@@ -179,7 +179,7 @@ def benchmark(target, ip)
 
     # Make a separate run for latency are a leisurely rate to determine the
     # latency when under normal load.
-    out = `perfer -d #{$duration} -c 10 -t 2 -k -b 1 -j -m 1000 -l 50,90,99,99.9 http://#{ip}:3000#{route}`
+    out = `perfer -d #{$duration} -c 10 -t 1 -k -b 1 -j -m 1000 -l 50,90,99,99.9 http://#{ip}:3000#{route}`
     puts "#{target.name} - #{route} latency output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 

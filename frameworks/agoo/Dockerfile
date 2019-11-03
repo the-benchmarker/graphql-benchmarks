@@ -2,7 +2,7 @@ FROM ruby:2.6.5
 
 WORKDIR /usr/src/app
 
-COPY Gemfile app.rb ./
+COPY Gemfile app.rb song.graphql ./
 
 RUN bundle install
 

@@ -142,7 +142,8 @@ def benchmark(target, ip)
   thread_count = ($threads * target.adjust).to_i
   thread_count = 1 if 1 > thread_count
   #['/', '/graphql?query={hello\(name:"world"\)}'].each { |route|
-  ['/', '/graphql?query={hello\(name:"world"\),__schema{types{name,kind,fields{name,type{name}}}}}'].each { |route|
+  #['/', '/graphql?query={hello\(name:"world"\),__schema{types{name,kind,fields{name,type{name}}}}}'].each { |route|
+  ['/', '/graphql?query={artists{name,origin,songs{name,duration,likes}},__schema{types{name,fields{name}}}}'].each { |route|
 
     # First run at full throttle to get the maximum rate and throughput.
     out = `perfer -d #{$duration} -c #{$connections} -t #{thread_count} -k -b 5 -j http://#{ip}:3000#{route}`
@@ -170,7 +171,7 @@ def benchmark(target, ip)
   }
 
   ['/graphql'].each { |route|
-    out = `perfer -d #{$duration} -c #{$connections} -t #{thread_count} -k -b 3 -j -a 'Content-Type: application/graphql' -p 'mutation { like }' http://#{ip}:3000#{route}`
+    out = `perfer -d #{$duration} -c #{$connections} -t #{thread_count} -k -b 3 -j -a 'Content-Type: application/graphql' -p 'mutation{like(artist:"Fazerdaze",song:"Jennifer"){likes}}' http://#{ip}:3000#{route}`
     puts "#{target.name} - POST #{route} maximum rate output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 

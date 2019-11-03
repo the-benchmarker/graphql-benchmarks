@@ -141,7 +141,8 @@ Dir.glob(root + '/*').each { |dir|
 def benchmark(target, ip)
   thread_count = ($threads * target.adjust).to_i
   thread_count = 1 if 1 > thread_count
-  ['/', '/graphql?query={hello\(name:"world"\)}'].each { |route|
+  #['/', '/graphql?query={hello\(name:"world"\)}'].each { |route|
+  ['/', '/graphql?query={hello\(name:"world"\),__schema{types{name,kind,fields{name,type{name}}}}}'].each { |route|
 
     # First run at full throttle to get the maximum rate and throughput.
     out = `perfer -d #{$duration} -c #{$connections} -t #{thread_count} -k -b 5 -j http://#{ip}:3000#{route}`
@@ -169,7 +170,7 @@ def benchmark(target, ip)
   }
 
   ['/graphql'].each { |route|
-    out = `perfer -d #{$duration} -c #{$connections} -t #{thread_count} -k -b 5 -j -a 'Content-Type: application/graphql' -p 'mutation { like }' http://#{ip}:3000#{route}`
+    out = `perfer -d #{$duration} -c #{$connections} -t #{thread_count} -k -b 3 -j -a 'Content-Type: application/graphql' -p 'mutation { like }' http://#{ip}:3000#{route}`
     puts "#{target.name} - POST #{route} maximum rate output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 
@@ -209,7 +210,7 @@ $targets.each { |target|
       sleep 1
     end
     raise StandardError.new("failed to start docker for #{target.name}") if remote_ip.nil? || remote_ip.empty?
-    puts "Docker container for #{target.name} is #{cid}." if 2 < $verbose
+    puts "Docker container for #{target.name} is #{cid} at #{remote_ip}." if 2 < $verbose
 
     # Wait for the server in the container to be up and responsive before
     # continuing using the same technique of avoiding a race condition.

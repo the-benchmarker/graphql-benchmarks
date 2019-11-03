@@ -1,6 +1,6 @@
 name: agoo
 website: github.com/ohler55/agoo
-version: "2.8"
+version: "2.11.3"
 language: "ruby"
 language-version: "2.6"
 bench-adjust: 0.5

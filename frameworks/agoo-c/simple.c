@@ -19,7 +19,6 @@
 static agooText			emptyResp = NULL;
 static atomic_int_fast64_t	like_count = 0;
 
-
 static const char	*sdl = "\n\
 type Query {\n\
   hello(name: String!): String\n\
@@ -35,7 +34,7 @@ empty_handler(agooReq req) {
 	emptyResp = agoo_respond(200, NULL, 0, NULL);
 	agoo_text_ref(emptyResp);
     }
-    agoo_res_set_message(req->res, emptyResp);
+    agoo_res_message_push(req->res, emptyResp);
 }
 
 ///// Query type setup
@@ -116,12 +115,13 @@ main(int argc, char **argv) {
 
     atomic_init(&like_count, 0);
 
-    agoo_io_loop_ratio = 1.0;   // higher values mean more IO threads
+    agoo_io_loop_ratio = 0.5;   // higher values mean more IO threads
+    agoo_poll_wait = 0.001;	// lower gives faster response but cpu use on main thread is higher.
     if (AGOO_ERR_OK != agoo_init(&err, "simple")) {
 	printf("Failed to initialize Agoo. %s\n", err.msg);
 	return err.code;
     }
-    agoo_server.thread_cnt = 1; // eval threads
+    agoo_server.thread_cnt = 4; // eval threads
 
     if (AGOO_ERR_OK != agoo_pages_set_root(&err, ".")) {
 	printf("Failed to set root. %s\n", err.msg);

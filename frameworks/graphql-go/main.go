@@ -36,11 +36,13 @@ func setup() *Schema {
 		"Amphetanarchy":        {Name: "Amphetanarchy", Artist: &boys, Duration: 346, Release: sep28},
 	}
 
+	query := Query{
+		Title:   "Songs",
+		Artists: map[string]*Artist{fazerdaze.Name: &fazerdaze, boys.Name: &boys},
+	}
 	return &Schema{
-		Query: &Query{
-			Title:   "Songs",
-			Artists: map[string]*Artist{fazerdaze.Name: &fazerdaze, boys.Name: &boys},
-		},
+		Query:    &query,
+		Mutation: &Mutation{query: &query},
 	}
 }
 
@@ -118,6 +120,26 @@ func (q *Query) ArtistsGG(params graphql.ResolveParams) (interface{}, error) {
 		artists = append(artists, a)
 	}
 	return artists, nil
+}
+
+func (m *Mutation) LikeGG(params graphql.ResolveParams) (interface{}, error) {
+	artist, ok := params.Args["artist"].(string)
+	if !ok {
+		return nil, fmt.Errorf("%v is not a valid artist. Must be a string",
+			params.Args["artist"])
+	}
+	song, ok := params.Args["song"].(string)
+	if !ok {
+		return nil, fmt.Errorf("%v is not a valid song. Must be a string",
+			params.Args["song"])
+	}
+	if a := m.query.Artists[artist]; a != nil {
+		if s := a.Songs[song]; s != nil {
+			s.Likes++
+			return s, nil
+		}
+	}
+	return nil, nil
 }
 
 func handleGraphQL(w http.ResponseWriter, req *http.Request, schema graphql.Schema) {
@@ -366,7 +388,7 @@ func buildSchema(data *Schema) (graphql.Schema, error) {
 			},
 			"artists": &graphql.Field{
 				Type:    graphql.NewList(artistType),
-				Resolve: data.Query.ArtistsX,
+				Resolve: data.Query.ArtistsGG,
 			},
 		},
 	})
@@ -374,19 +396,31 @@ func buildSchema(data *Schema) (graphql.Schema, error) {
 	// type Mutation {
 	//   like(artist: String!, song: String!): Song
 	// }
-	/*
-		mutationType := graphql.NewObject(graphql.ObjectConfig{
-			Name: "Mutation",
-			// TBD
-		})
-	*/
+	mutationType := graphql.NewObject(graphql.ObjectConfig{
+		Name: "Mutation",
+		Fields: graphql.Fields{
+			"like": &graphql.Field{
+				Type: songType,
+				Args: graphql.FieldConfigArgument{
+					"artist": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.String),
+					},
+					"song": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.String),
+					},
+				},
+				Resolve: data.Mutation.LikeGG,
+			},
+		},
+	})
+
 	// type schema {
 	//   query: Query
 	//   mutation: Mutation
 	// }
 	return graphql.NewSchema(graphql.SchemaConfig{
-		Query: queryType,
-		//Mutation: mutationType,
+		Query:    queryType,
+		Mutation: mutationType,
 	})
 }
 

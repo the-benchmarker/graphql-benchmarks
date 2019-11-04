@@ -129,7 +129,7 @@ $schema = Schema.new(Query.new([fazerdaze, boys]))
 Agoo::Server.handle(:GET, '/', Empty)
 
 Agoo::Server.start
-Agoo::GraphQL.schema($schema) {Agoo::GraphQL.load_file('../../song.graphql')}
+Agoo::GraphQL.schema($schema) {Agoo::GraphQL.load_file('song.graphql')}
 
 sleep
 

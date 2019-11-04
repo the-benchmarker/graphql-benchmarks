@@ -141,9 +141,8 @@ Dir.glob(root + '/*').each { |dir|
 def benchmark(target, ip)
   thread_count = ($threads * target.adjust).to_i
   thread_count = 1 if 1 > thread_count
-  #['/', '/graphql?query={hello\(name:"world"\)}'].each { |route|
-  #['/', '/graphql?query={hello\(name:"world"\),__schema{types{name,kind,fields{name,type{name}}}}}'].each { |route|
-  ['/', '/graphql?query={artists{name,origin,songs{name,duration,likes}},__schema{types{name,fields{name}}}}'].each { |route|
+  complex = '/graphql?query={artists{name,origin,songs{name,duration,likes}},__schema{types{name,fields{name}}}}'
+  ['/', complex].each { |route|
 
     # First run at full throttle to get the maximum rate and throughput.
     out = `perfer -d #{$duration} -c #{$connections} -t #{thread_count} -k -b 5 -j "http://#{ip}:3000#{route}"`

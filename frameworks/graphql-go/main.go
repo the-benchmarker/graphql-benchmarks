@@ -16,11 +16,14 @@ import (
 // Define the types and data in a generic way without considering the GraphQL
 // package then hookup the package as needed. This section is copined into all
 // golang framework applications.
-func setup() *Schema {
+////////////////////////////////////////////////////////////////////////////////
+// Start of GraphQL package neutral type definitions.
+
+func setupSongs() *Schema {
 	fazerdaze := Artist{Name: "Fazerdaze", Origin: []string{"Morningside", "Auckland", "New Zealand"}}
 	may5 := &Date{Year: 2017, Month: 5, Day: 5}
 	nov2 := &Date{Year: 2015, Month: 11, Day: 2}
-	fazerdaze.Songs = []*Song{
+	fazerdaze.Songs = SongList{
 		{Name: "Jennifer", Artist: &fazerdaze, Duration: 240, Release: may5},
 		{Name: "Lucky Girl", Artist: &fazerdaze, Duration: 170, Release: may5},
 		{Name: "Friends", Artist: &fazerdaze, Duration: 194, Release: may5},
@@ -29,7 +32,7 @@ func setup() *Schema {
 
 	boys := Artist{Name: "Viagra Boys", Origin: []string{"Stockholm", "Sweden"}}
 	sep28 := &Date{Year: 2018, Month: 11, Day: 2}
-	boys.Songs = []*Song{
+	boys.Songs = SongList{
 		{Name: "Down In The Basement", Artist: &boys, Duration: 216, Release: sep28},
 		{Name: "Frogstrap", Artist: &boys, Duration: 195, Release: sep28},
 		{Name: "Worms", Artist: &boys, Duration: 208, Release: sep28},
@@ -38,7 +41,7 @@ func setup() *Schema {
 
 	query := Query{
 		Title:   "Songs",
-		Artists: []*Artist{&fazerdaze, &boys},
+		Artists: ArtistList{&fazerdaze, &boys},
 	}
 	return &Schema{
 		Query:    &query,
@@ -46,47 +49,47 @@ func setup() *Schema {
 	}
 }
 
+// Schema represents the top level of a GraphQL data/resolver graph.
 type Schema struct {
 	Query    *Query
 	Mutation *Mutation
 }
 
+// Query represents the query node in a data/resolver graph.
 type Query struct {
 	Title   string
-	Artists []*Artist
+	Artists ArtistList
 }
 
+// Mutation represents the query node in a data/resolver graph.
 type Mutation struct {
 	query *Query // Query is the data store for this example
 }
 
+// Likes increments likes attribute the song of the artist specified.
 func (m *Mutation) Likes(artist, song string) *Song {
-	for _, a := range m.query.Artists {
-		if a.Name == artist {
-			for _, s := range a.Songs {
-				s.Likes++
-				return s
-			}
+	if a := m.query.Artists.GetByName(artist); a != nil {
+		if s := a.Songs.GetByName(song); s != nil {
+			s.Likes++
+			return s
 		}
 	}
 	return nil
 }
 
+// Artist returns the artist in the list with the specified name.
 func (q *Query) Artist(name string) *Artist {
-	for _, a := range q.Artists {
-		if a.Name == name {
-			return a
-		}
-	}
-	return nil
+	return q.Artists.GetByName(name)
 }
 
+// Artist represents the GraphQL Artist.
 type Artist struct {
 	Name   string
-	Songs  []*Song
+	Songs  SongList
 	Origin []string
 }
 
+// Song represents the GraphQL Song.
 type Song struct {
 	Name     string
 	Artist   *Artist
@@ -95,12 +98,63 @@ type Song struct {
 	Likes    int
 }
 
+// ArtistList is a list of Artists. It exists to allow list members to be
+// ordered but still implement map like behavionr (not yet implemented).
+type ArtistList []*Artist
+
+// Len of the list.
+func (al ArtistList) Len() int {
+	return len(al)
+}
+
+// Nth element in the list.
+func (al ArtistList) Nth(i int) interface{} {
+	return al[i]
+}
+
+// GetByName retrieves the element with the specified name.
+func (al ArtistList) GetByName(name string) *Artist {
+	for _, a := range al {
+		if a.Name == name {
+			return a
+		}
+	}
+	return nil
+}
+
+// SongList is a list of Songs. It exists to allow list members to be
+// ordered but still implement map like behavionr (not yet implemented).
+type SongList []*Song
+
+// Len of the list.
+func (sl SongList) Len() int {
+	return len(sl)
+}
+
+// Nth element in the list.
+func (sl SongList) Nth(i int) interface{} {
+	return sl[i]
+}
+
+// GetByName retrieves the element with the specified name.
+func (sl SongList) GetByName(name string) *Song {
+	for _, s := range sl {
+		if s.Name == name {
+			return s
+		}
+	}
+	return nil
+}
+
+// Date represents a date with year, month, and day of the month.
 type Date struct {
 	Year  int
 	Month int
 	Day   int
 }
 
+// DateFromString parses a string in the format YYY-MM-DD into a Date
+// instance.
 func DateFromString(s string) (d *Date, err error) {
 	d = &Date{}
 	parts := strings.Split(s, "-")
@@ -115,19 +169,18 @@ func DateFromString(s string) (d *Date, err error) {
 	return
 }
 
+// String returns a YYYY-MM-DD formatted string representation of the Date.
 func (d *Date) String() string {
 	return fmt.Sprintf("%04d-%02d-%02d", d.Year, d.Month, d.Day)
 }
 
+// End of GraphQL package neutral type definitions.
 ////////////////////////////////////////////////////////////////////////////////
+
 // Now the framework specific code.
 
 func (q *Query) ArtistsGG(params graphql.ResolveParams) (interface{}, error) {
-	artists := make([]interface{}, 0, len(q.Artists))
-	for _, a := range q.Artists {
-		artists = append(artists, a)
-	}
-	return artists, nil
+	return q.Artists, nil
 }
 
 func (m *Mutation) LikeGG(params graphql.ResolveParams) (interface{}, error) {
@@ -180,12 +233,7 @@ func QueryArtist(params graphql.ResolveParams) (interface{}, error) {
 	if q, ok = params.Source.(*Query); !ok {
 		return nil, fmt.Errorf("Schema.query resolve failed (%T)", params.Source)
 	}
-	for _, a := range q.Artists {
-		if a.Name == name {
-			return a, nil
-		}
-	}
-	return nil, nil
+	return q.Artists.GetByName(name), nil
 }
 
 func QueryArtists(params graphql.ResolveParams) (interface{}, error) {
@@ -193,11 +241,7 @@ func QueryArtists(params graphql.ResolveParams) (interface{}, error) {
 	if !ok {
 		return nil, fmt.Errorf("Schema.query resolve failed XX (%T)", params.Source)
 	}
-	artists := make([]interface{}, 0, len(q.Artists))
-	for _, a := range q.Artists {
-		artists = append(artists, a)
-	}
-	return artists, nil
+	return q.Artists, nil
 }
 
 func ArtistName(params graphql.ResolveParams) (interface{}, error) {
@@ -218,12 +262,7 @@ func ArtistSong(params graphql.ResolveParams) (interface{}, error) {
 	if a, ok = params.Source.(*Artist); !ok {
 		return nil, fmt.Errorf("Query.artist resolve failed (%T)", params.Source)
 	}
-	for _, s := range a.Songs {
-		if s.Name == name {
-			return s, nil
-		}
-	}
-	return nil, nil
+	return a.Songs.GetByName(name), nil
 }
 
 func ArtistSongs(params graphql.ResolveParams) (interface{}, error) {
@@ -231,11 +270,7 @@ func ArtistSongs(params graphql.ResolveParams) (interface{}, error) {
 	if !ok {
 		return nil, fmt.Errorf("Query.artist resolve failed (%T)", params.Source)
 	}
-	songs := make([]interface{}, 0, len(a.Songs))
-	for _, s := range a.Songs {
-		songs = append(songs, s)
-	}
-	return songs, nil
+	return a.Songs, nil
 }
 
 func SongName(params graphql.ResolveParams) (interface{}, error) {
@@ -436,7 +471,7 @@ func buildSchema(data *Schema) (graphql.Schema, error) {
 }
 
 func main() {
-	schema, err := buildSchema(setup())
+	schema, err := buildSchema(setupSongs())
 	if err != nil {
 		fmt.Printf("*-*-* Failed to build schema. %s\n", err)
 		os.Exit(1)

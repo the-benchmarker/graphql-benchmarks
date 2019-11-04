@@ -146,7 +146,7 @@ def benchmark(target, ip)
   ['/', '/graphql?query={artists{name,origin,songs{name,duration,likes}},__schema{types{name,fields{name}}}}'].each { |route|
 
     # First run at full throttle to get the maximum rate and throughput.
-    out = `perfer -d #{$duration} -c #{$connections} -t #{thread_count} -k -b 5 -j http://#{ip}:3000#{route}`
+    out = `perfer -d #{$duration} -c #{$connections} -t #{thread_count} -k -b 5 -j "http://#{ip}:3000#{route}"`
     puts "#{target.name} - #{route} maximum rate output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 
@@ -156,7 +156,7 @@ def benchmark(target, ip)
 
     # Make a separate run for latency are a leisurely rate to determine the
     # latency when under normal load.
-    out = `perfer -d #{$duration} -c 10 -t 1 -k -b 1 -j -m 1000 -l 50,90,99,99.9 http://#{ip}:3000#{route}`
+    out = `perfer -d #{$duration} -c 10 -t 1 -k -b 1 -j -m 1000 -l 50,90,99,99.9 "http://#{ip}:3000#{route}"`
     puts "#{target.name} - #{route} latency output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 

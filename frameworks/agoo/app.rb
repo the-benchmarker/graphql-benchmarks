@@ -14,7 +14,7 @@ worker_count = Etc.nprocessors() / 3
 worker_count = 1 if worker_count < 1
 Agoo::Server.init(3000, '.', thread_count: 2, worker_count: worker_count, graphql: '/graphql', poll_timeout: 0.1)
 #worker_count = 1
-#Agoo::Server.init(3000, '.', thread_count: 2, worker_count: worker_count, graphql: '/graphql', poll_timeout: 0.01)
+#Agoo::Server.init(3000, '.', thread_count: 1, worker_count: worker_count, graphql: '/graphql', poll_timeout: 0.01)
 
 # Empty response.
 class Empty

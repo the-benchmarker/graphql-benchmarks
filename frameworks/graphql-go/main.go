@@ -20,25 +20,25 @@ func setup() *Schema {
 	fazerdaze := Artist{Name: "Fazerdaze", Origin: []string{"Morningside", "Auckland", "New Zealand"}}
 	may5 := &Date{Year: 2017, Month: 5, Day: 5}
 	nov2 := &Date{Year: 2015, Month: 11, Day: 2}
-	fazerdaze.Songs = map[string]*Song{
-		"Jennifer":  {Name: "Jennifer", Artist: &fazerdaze, Duration: 240, Release: may5},
-		"Luck Girl": {Name: "Luck Girl", Artist: &fazerdaze, Duration: 170, Release: may5},
-		"Friends":   {Name: "Friends", Artist: &fazerdaze, Duration: 194, Release: may5},
-		"Reel":      {Name: "Reel", Artist: &fazerdaze, Duration: 193, Release: nov2},
+	fazerdaze.Songs = []*Song{
+		{Name: "Jennifer", Artist: &fazerdaze, Duration: 240, Release: may5},
+		{Name: "Lucky Girl", Artist: &fazerdaze, Duration: 170, Release: may5},
+		{Name: "Friends", Artist: &fazerdaze, Duration: 194, Release: may5},
+		{Name: "Reel", Artist: &fazerdaze, Duration: 193, Release: nov2},
 	}
 
 	boys := Artist{Name: "Viagra Boys", Origin: []string{"Stockholm", "Sweden"}}
 	sep28 := &Date{Year: 2018, Month: 11, Day: 2}
-	boys.Songs = map[string]*Song{
-		"Down In The Basement": {Name: "Down In The Basement", Artist: &boys, Duration: 216, Release: sep28},
-		"Frogstrap":            {Name: "Frogstrap", Artist: &boys, Duration: 195, Release: sep28},
-		"Worms":                {Name: "Worms", Artist: &boys, Duration: 208, Release: sep28},
-		"Amphetanarchy":        {Name: "Amphetanarchy", Artist: &boys, Duration: 346, Release: sep28},
+	boys.Songs = []*Song{
+		{Name: "Down In The Basement", Artist: &boys, Duration: 216, Release: sep28},
+		{Name: "Frogstrap", Artist: &boys, Duration: 195, Release: sep28},
+		{Name: "Worms", Artist: &boys, Duration: 208, Release: sep28},
+		{Name: "Amphetanarchy", Artist: &boys, Duration: 346, Release: sep28},
 	}
 
 	query := Query{
 		Title:   "Songs",
-		Artists: map[string]*Artist{fazerdaze.Name: &fazerdaze, boys.Name: &boys},
+		Artists: []*Artist{&fazerdaze, &boys},
 	}
 	return &Schema{
 		Query:    &query,
@@ -53,29 +53,37 @@ type Schema struct {
 
 type Query struct {
 	Title   string
-	Artists map[string]*Artist
+	Artists []*Artist
 }
 
 type Mutation struct {
 	query *Query // Query is the data store for this example
 }
 
-func (m *Mutation) Like(artist, song string) *Song {
-	if a := m.query.Artists[artist]; a != nil {
-		if s := a.Songs[song]; s != nil {
-			return s
+func (m *Mutation) Likes(artist, song string) *Song {
+	for _, a := range m.query.Artists {
+		if a.Name == artist {
+			for _, s := range a.Songs {
+				s.Likes++
+				return s
+			}
 		}
 	}
 	return nil
 }
 
 func (q *Query) Artist(name string) *Artist {
-	return q.Artists[name]
+	for _, a := range q.Artists {
+		if a.Name == name {
+			return a
+		}
+	}
+	return nil
 }
 
 type Artist struct {
 	Name   string
-	Songs  map[string]*Song
+	Songs  []*Song
 	Origin []string
 }
 
@@ -133,13 +141,7 @@ func (m *Mutation) LikeGG(params graphql.ResolveParams) (interface{}, error) {
 		return nil, fmt.Errorf("%v is not a valid song. Must be a string",
 			params.Args["song"])
 	}
-	if a := m.query.Artists[artist]; a != nil {
-		if s := a.Songs[song]; s != nil {
-			s.Likes++
-			return s, nil
-		}
-	}
-	return nil, nil
+	return m.Likes(artist, song), nil
 }
 
 func handleGraphQL(w http.ResponseWriter, req *http.Request, schema graphql.Schema) {
@@ -178,13 +180,17 @@ func QueryArtist(params graphql.ResolveParams) (interface{}, error) {
 	if q, ok = params.Source.(*Query); !ok {
 		return nil, fmt.Errorf("Schema.query resolve failed (%T)", params.Source)
 	}
-	return q.Artists[name], nil
+	for _, a := range q.Artists {
+		if a.Name == name {
+			return a, nil
+		}
+	}
+	return nil, nil
 }
 
 func QueryArtists(params graphql.ResolveParams) (interface{}, error) {
 	q, ok := params.Source.(*Query)
 	if !ok {
-		fmt.Printf("*** %v\n", params)
 		return nil, fmt.Errorf("Schema.query resolve failed XX (%T)", params.Source)
 	}
 	artists := make([]interface{}, 0, len(q.Artists))
@@ -212,7 +218,12 @@ func ArtistSong(params graphql.ResolveParams) (interface{}, error) {
 	if a, ok = params.Source.(*Artist); !ok {
 		return nil, fmt.Errorf("Query.artist resolve failed (%T)", params.Source)
 	}
-	return a.Songs[name], nil
+	for _, s := range a.Songs {
+		if s.Name == name {
+			return s, nil
+		}
+	}
+	return nil, nil
 }
 
 func ArtistSongs(params graphql.ResolveParams) (interface{}, error) {

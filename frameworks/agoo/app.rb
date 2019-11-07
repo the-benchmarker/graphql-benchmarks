@@ -8,13 +8,16 @@ require 'agoo'
 # worker_count must be set to 1 for state preservation on the mutation
 # calls. If data is stored in a centralized store such as a database then
 # multiple workers are fine. Multiple worker are fine for query only
-# APIs. Since most real world applications will use an external store multiple
-# workers are allowed in this benchmark test.
-worker_count = Etc.nprocessors() / 3
-worker_count = 1 if worker_count < 1
-Agoo::Server.init(3000, '.', thread_count: 2, worker_count: worker_count, graphql: '/graphql', poll_timeout: 0.1)
-#worker_count = 1
-#Agoo::Server.init(3000, '.', thread_count: 1, worker_count: worker_count, graphql: '/graphql', poll_timeout: 0.01)
+# APIs. Most real world applications will use an external store, multiple
+# workers would make more sense this benchmark test. Flip the flag to change
+# the test.
+if false # true for multiple workers, false for a single worker
+  worker_count = Etc.nprocessors() / 3
+  worker_count = 1 if worker_count < 1
+  Agoo::Server.init(3000, '.', thread_count: 2, worker_count: worker_count, graphql: '/graphql', poll_timeout: 0.1)
+else
+  Agoo::Server.init(3000, '.', thread_count: 2, worker_count: 1, graphql: '/graphql', poll_timeout: 0.01)
+end
 
 # Empty response.
 class Empty
@@ -89,12 +92,17 @@ class Mutation
   def like(args={})
     an = args['artist']
     sn = args['song']
-    @lock.synchronize {
-      @artists.each {|a|
-	 if an == a.name
-	   a.songs.each { |s| if s.name == sn; s.likes += 1; return s; end }
-	 end
-      }
+    @artists.each {|a|
+      if an == a.name
+	a.songs.each { |s|
+	  if s.name == sn
+	    @lock.synchronize {
+	      s.likes += 1
+	    }
+	    return s
+	  end
+	}
+      end
     }
     nil
   end

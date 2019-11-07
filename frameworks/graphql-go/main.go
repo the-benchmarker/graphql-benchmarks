@@ -66,8 +66,8 @@ type Mutation struct {
 	query *Query // Query is the data store for this example
 }
 
-// Likes increments likes attribute the song of the artist specified.
-func (m *Mutation) Likes(artist, song string) *Song {
+// Like increments likes attribute the song of the artist specified.
+func (m *Mutation) Like(artist, song string) *Song {
 	if a := m.query.Artists.GetByName(artist); a != nil {
 		if s := a.Songs.GetByName(song); s != nil {
 			s.Likes++
@@ -194,7 +194,7 @@ func (m *Mutation) LikeGG(params graphql.ResolveParams) (interface{}, error) {
 		return nil, fmt.Errorf("%v is not a valid song. Must be a string",
 			params.Args["song"])
 	}
-	return m.Likes(artist, song), nil
+	return m.Like(artist, song), nil
 }
 
 func handleGraphQL(w http.ResponseWriter, req *http.Request, schema graphql.Schema) {
@@ -271,6 +271,14 @@ func ArtistSongs(params graphql.ResolveParams) (interface{}, error) {
 		return nil, fmt.Errorf("Query.artist resolve failed (%T)", params.Source)
 	}
 	return a.Songs, nil
+}
+
+func ArtistOrigin(params graphql.ResolveParams) (interface{}, error) {
+	a, ok := params.Source.(*Artist)
+	if !ok {
+		return nil, fmt.Errorf("Query.origin resolve failed (%T)", params.Source)
+	}
+	return a.Origin, nil
 }
 
 func SongName(params graphql.ResolveParams) (interface{}, error) {
@@ -398,6 +406,10 @@ func buildSchema(data *Schema) (graphql.Schema, error) {
 			"songs": &graphql.Field{
 				Type:    graphql.NewList(songType),
 				Resolve: ArtistSongs,
+			},
+			"origin": &graphql.Field{
+				Type:    graphql.NewList(graphql.String),
+				Resolve: ArtistOrigin,
 			},
 			"song": &graphql.Field{
 				Type: songType,

@@ -142,9 +142,14 @@ def benchmark(target, ip)
   thread_count = ($threads * target.adjust).to_i
   thread_count = 1 if 1 > thread_count
   complex = '/graphql?query={artists{name,origin,songs{name,duration,likes}},__schema{types{name,fields{name}}}}'
-  ['/', complex].each { |route|
 
-    # First run at full throttle to get the maximum rate and throughput.
+  # query
+  # Multiple paths can be used. For just the graphql part use only the
+  # 'complex' path.
+  #['/', complex].each { |route|
+  #[complex].each { |route|
+  [].each { |route|
+    # throughput: First run at full throttle to get the maximum rate and throughput.
     out = `perfer -d #{$duration} -c #{$connections} -t #{thread_count} -k -b 5 -j "http://#{ip}:3000#{route}"`
     puts "#{target.name} - #{route} maximum rate output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
@@ -153,6 +158,7 @@ def benchmark(target, ip)
     target.requests += bench['results']['requests']
     target.bytes += bench['results']['totalBytes']
 
+    # latency
     # Make a separate run for latency are a leisurely rate to determine the
     # latency when under normal load.
     out = `perfer -d #{$duration} -c 10 -t 1 -k -b 1 -j -m 1000 -l 50,90,99,99.9 "http://#{ip}:3000#{route}"`
@@ -169,7 +175,9 @@ def benchmark(target, ip)
 		       spread['99.90'])
   }
 
+  # mutation
   ['/graphql'].each { |route|
+    # throughput
     out = `perfer -d #{$duration} -c #{$connections} -t #{thread_count} -k -b 3 -j -a 'Content-Type: application/graphql' -p 'mutation{like(artist:"Fazerdaze",song:"Jennifer"){likes}}' http://#{ip}:3000#{route}`
     puts "#{target.name} - POST #{route} maximum rate output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
@@ -178,6 +186,7 @@ def benchmark(target, ip)
     target.requests += bench['results']['requests']
     target.bytes += bench['results']['totalBytes']
 
+    # latency
     # Make a separate run for latency are a leisurely rate to determine the
     # latency when under normal load.
     out = `perfer -d #{$duration} -c 10 -t 1 -k -b 1 -j -m 1000 -l 50,90,99,99.9 http://#{ip}:3000#{route}`

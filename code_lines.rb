@@ -17,7 +17,7 @@ def ccnt_file(filename)
     next if line.length == 0
     # skip comments
     next if line[0] == '#'
-    next if line[0] == '/' && 1 < line.length && lines[1] == '/'
+    next if line[0] == '/' && 1 < line.length && line[1] == '/'
     cnt += 1 + line.length / 80
   end
   cnt

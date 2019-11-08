@@ -12,13 +12,13 @@ bottom of this page.
 ### Top 5 Ranking
 |     | Requests/second |     | Latency (milliseconds) |
 |:---:| --------------- |:---:| ---------------------- |
-| :one: | agoo-c (c) | :one: | agoo (ruby) |
-| :two: | agoo (ruby) | :two: | graphql-go (go) |
-| :three: | graphql-go (go) | :three: | agoo-c (c) |
+| :one: | agoo-c (c) | :one: | agoo-c (c) |
+| :two: | agoo (ruby) | :two: | agoo (ruby) |
+| :three: | graphql-go (go) | :three: | graphql-go (go) |
 
 #### Parameters
-- Last updates: 2019-04-20
-- OS: Linux (version: 5.0.8-050008-generic, arch: x86_64)
+- Last updates: 2019-11-07
+- OS: Linux (version: 5.3.8-050308-generic, arch: x86_64)
 - CPU Cores: 12
 - Connections: 1000
 - Duration: 20 seconds
@@ -26,16 +26,16 @@ bottom of this page.
 ### Rate (requests per second)
 | Language (Runtime) | Framework (Middleware) | Requests/second | Throughput (MB/sec) |
 | -------------------| ---------------------- | ---------------:| -------------------:|
-| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 507990 | 32.22 MB/sec |
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 237539 | 20.87 MB/sec |
-| go (1.12) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | 139598 | 12.97 MB/sec |
+| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.7.2) | 422167 | 42.60 MB/sec |
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.11.3) | 170743 | 17.20 MB/sec |
+| go (1.13) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | 30666 | 4.43 MB/sec |
 
 ### Latency
 | Language (Runtime) | Framework (Middleware) | Average Latency | Mean Latency | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation |
 | ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| ---------------:| -----------------:| ------------------:|
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 0.29 ms | **0.07 ms** | 1.00 ms | 1.04 ms | 1.05 ms | 0.46 |
-| go (1.12) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | 0.09 ms | **0.08 ms** | 0.10 ms | 0.19 ms | 0.37 ms | 0.03 |
-| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 0.53 ms | **0.09 ms** | 0.71 ms | 2.37 ms | 2.38 ms | 0.86 |
+| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.7.2) | 0.06 ms | **0.03 ms** | 0.18 ms | 0.18 ms | 1.01 ms | 0.12 |
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.11.3) | 0.16 ms | **0.03 ms** | 0.33 ms | 1.96 ms | 3.01 ms | 0.38 |
+| go (1.13) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | 0.08 ms | **0.08 ms** | 0.09 ms | 0.11 ms | 0.36 ms | 0.02 |
 <!-- Result till here -->
 
 ## Requirements

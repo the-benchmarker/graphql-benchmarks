@@ -6,10 +6,10 @@ CFLAGS=-c -Wall -O3 -std=$(CV) -pedantic -D$(OS)
 SRC_DIR=.
 LIB_DIRS=-Lagoo-c/lib
 INC_DIRS=-Iagoo-c/include
-SRCS=simple.c
+SRCS=main.c
 LIBS=-lagoo -lpthread -lm
 OBJS=$(SRCS:.c=.o)
-TARGET=simple
+TARGET=app
 
 all: $(TARGET)
 

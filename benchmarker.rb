@@ -363,7 +363,7 @@ def update_latency(lats)
   add_links(out)
   out.puts()
   out.puts('### Latency')
-  out.puts('| Language | Framework | Mean Latency (msecs) | Average Latency (msecs) | 90th % (msecs) | 99th % (msecs) | StdDev | Req/sec | Verbosity |')
+  out.puts('| Language | Framework(version) | Mean Latency (msecs) | Average Latency (msecs) | 90th % (msecs) | 99th % (msecs) | StdDev | Req/sec | Verbosity |')
   out.puts('| ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| -----------------:| ------------------:| ------:| ------:|')
   lats.each { |t|
     out.puts("| %s (%s) | [%s](%s) (%s) | **%.3f** | %.3f | %.3f | %.3f | %.2f | %d | %d |" %
@@ -383,7 +383,7 @@ def update_rates(rates)
   out.puts()
 
   out.puts('### Rate (requests per second)')
-  out.puts('| Language | Framework | Requests/second | Throughput (MB/sec) | Latency (msecs) | Verbosity |')
+  out.puts('| Language | Framework(version) | Requests/second | Throughput (MB/sec) | Latency (msecs) | Verbosity |')
   out.puts('| -------------------| ---------------------- | ---------------:| -------------------:| ------:| -----:|')
   rates.each { |t|
     out.puts("| %s (%s) | [%s](%s) (%s) | **%d** | %.2f | %.3f | %d |" %

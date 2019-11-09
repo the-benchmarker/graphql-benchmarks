@@ -280,7 +280,7 @@ lats = $targets.sort{ |ta, tb| ta.latency_mean <=> tb.latency_mean }
 rates = $targets.sort{ |ta, tb| tb.rate <=> ta.rate }
 verbs = $targets.sort{ |ta, tb| ta.verbosity <=> tb.verbosity }
 
-def add_params(out)
+def add_header(out)
   out.puts('#### Parameters')
   out.puts("- Last updated: #{Time.now.strftime("%Y-%m-%d")}")
   out.puts("- OS: #{`uname -s`.rstrip} (version: #{`uname -r`.rstrip}, arch: #{`uname -m`.rstrip})")
@@ -288,14 +288,29 @@ def add_params(out)
   out.puts("- Connections: #{$connections}")
   out.puts("- Duration: #{$duration} seconds")
   out.puts()
-end
-
-def add_links(out)
+  out.puts("- **Rates** are in requests per second.")
+  out.puts("- **Latency** is in milliseconds.")
+  out.puts("- **Verbosity** is the number of non-blank lines of code excluding comments.")
+  out.puts()
   out.puts("| [Rate](rates.md) | [Latency](latency.md) | [Verbosity](verbosity.md) | [README](README.md) |")
   out.puts("| ---------------- | --------------------- | ------------------------- | ------------------- |")
+  out.puts()
 end
 
 # TBD use functions for common stuff
+def show_results(lats, rates, verbs)
+  puts "\x1b[1mTop 5 Ranking\x1b[m"
+  puts "\x1b[4mRate                \x1b[m  \x1b[4mLatency             \x1b[m  \x1b[4mVerbosity           \x1b[m"
+  lats[0..4].size.times { |i|
+    lt = lats[i]
+    rt = rates[i]
+    vt = verbs[i]
+    puts "%20s  %20s  %20s" % ["#{rt.name} (#{rt.lang})", "#{lt.name} (#{lt.lang})", "#{vt.name} (#{vt.lang})"]
+  }
+
+end
+
+show_results(lats, rates, verbs)
 
 $out = StringIO.new()
 
@@ -312,7 +327,7 @@ lats[0..4].size.times { |i|
 }
 $out.puts()
 
-add_params($out)
+#add_params($out)
 
 $out.puts('### Rate (requests per second)')
 $out.puts('| Language | Framework | Requests/second | Throughput (MB/sec) |')
@@ -323,7 +338,7 @@ rates.each { |t|
 $out.puts()
 
 $out.puts('### Latency')
-$out.puts('| Language | Framework | Mean Latency (msecs) | Average Latency (msecs) | 90th % (msecs) | 99th % (msecs) | Standard Deviation | Req/sec | Verbosity |')
+$out.puts('| Language | Framework | Mean Latency | Average Latency | 90th % | 99th % | Std Dev | Req/sec | Verbosity |')
 $out.puts('| ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| ---------------:| -----------------:| ------------------:| ------:| ------:|')
 lats.each { |t|
   $out.puts("| %s (%s) | [%s](%s) (%s) | **%.3f** | %.3f | %.3f | %.3f | %.2f | %.2f | %d |" %
@@ -336,8 +351,8 @@ puts $out.string
 def update_readme(lats, rates, verbs)
   out = StringIO.new()
   out.puts('### Top 5 Ranking')
-  out.puts('|     | Requests/second | Latency (milliseconds) | Verbosity |')
-  out.puts('|:---:| --------------- | ---------------------- | --------- |')
+  out.puts('|     | Rate | Latency | Verbosity |')
+  out.puts('|:---:| ---- | ------- | --------- |')
 
   lats[0..4].size.times { |i|
     lt = lats[i]
@@ -347,8 +362,7 @@ def update_readme(lats, rates, verbs)
 	      [$emojis[i], rt.name, rt.lang, lt.name, lt.lang, vt.name, vt.lang])
   }
   out.puts()
-  add_params(out)
-  add_links(out)
+  add_header(out)
 
   path = File.expand_path('../README.md', __FILE__)
   readme = File.read(path)
@@ -359,12 +373,11 @@ end
 def update_latency(lats)
   out = StringIO.new()
   out.puts()
-  add_params(out)
-  add_links(out)
-  out.puts()
+  add_header(out)
+
   out.puts('### Latency')
-  out.puts('| Language | Framework(version) | Mean Latency (msecs) | Average Latency (msecs) | 90th % (msecs) | 99th % (msecs) | StdDev | Req/sec | Verbosity |')
-  out.puts('| ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| -----------------:| ------------------:| ------:| ------:|')
+  out.puts('| Language | Framework(version) | Mean Latency | Average Latency | 90th % | 99th % | Std Dev | Rate | Verbosity |')
+  out.puts('| -------- | ------------------ | ------------:| ---------------:| ------:| ------:| -------:| ----:| ---------:|')
   lats.each { |t|
     out.puts("| %s (%s) | [%s](%s) (%s) | **%.3f** | %.3f | %.3f | %.3f | %.2f | %d | %d |" %
 	     [t.lang, t.langver, t.name, t.link, t.version, t.latency_mean, t.latency_average, t.latency_90, t.latency_99, t.latency_stdev, t.rate.to_i, t.verbosity])
@@ -378,13 +391,11 @@ end
 def update_rates(rates)
   out = StringIO.new()
   out.puts()
-  add_params(out)
-  add_links(out)
-  out.puts()
+  add_header(out)
 
   out.puts('### Rate (requests per second)')
-  out.puts('| Language | Framework(version) | Requests/second | Throughput (MB/sec) | Latency (msecs) | Verbosity |')
-  out.puts('| -------------------| ---------------------- | ---------------:| -------------------:| ------:| -----:|')
+  out.puts('| Language | Framework(version) | Rate | Throughput (MB/sec) | Latency | Verbosity |')
+  out.puts('| ---------| ------------------ | ----:| -------------------:| -------:| ---------:|')
   rates.each { |t|
     out.puts("| %s (%s) | [%s](%s) (%s) | **%d** | %.2f | %.3f | %d |" %
 	     [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.throughput, t.latency_mean, t.verbosity])
@@ -399,13 +410,11 @@ end
 def update_verbs(verbs)
   out = StringIO.new()
   out.puts()
-  add_params(out)
-  add_links(out)
-  out.puts()
+  add_header(out)
 
   out.puts('### Verbosity (lines of code)')
-  out.puts('| Language | Framework | Requests/second | Latency (msecs) | Verbosity |')
-  out.puts('| -------------------| ---------------------- | -------------------:| ------:| -----:|')
+  out.puts('| Language | Framework(version) | Rate | Latency | Verbosity |')
+  out.puts('| ---------| ------------------ | ----:| -------:| ---------:|')
   verbs.each { |t|
     out.puts("| %s (%s) | [%s](%s) (%s) | %d | %.3f | **%d** |" %
 	     [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.latency_mean, t.verbosity])

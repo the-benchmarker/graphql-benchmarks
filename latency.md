@@ -9,13 +9,17 @@
 - Connections: 1000
 - Duration: 20 seconds
 
+- **Rates** are in requests per second.
+- **Latency** is in milliseconds.
+- **Verbosity** is the number of non-blank lines of code excluding comments.
+
 | [Rate](rates.md) | [Latency](latency.md) | [Verbosity](verbosity.md) | [README](README.md) |
 | ---------------- | --------------------- | ------------------------- | ------------------- |
 
 ### Latency
-| Language | Framework(version) | Mean Latency msecs | Average Latency msecs | 90th % msecs | 99th % msecs | Std Dev | Req/sec | Verbosity |
-| ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| -----------------:| ------------------:| ------:| ------:|
-| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.7.2) | **0.028** | 0.058 | 0.175 | 0.184 | 0.07 | 436718 | 345 |
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.11.3) | **0.029** | 0.165 | 0.472 | 1.964 | 0.40 | 160345 | 107 |
-| go (1.13) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | **0.085** | 0.082 | 0.090 | 0.101 | 0.02 | 30785 | 392 |
+| Language | Framework(version) | Mean Latency | Average Latency | 90th % | 99th % | Std Dev | Rate | Verbosity |
+| -------- | ------------------ | ------------:| ---------------:| ------:| ------:| -------:| ----:| ---------:|
+| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.7.2) | **0.028** | 0.059 | 0.174 | 0.186 | 0.08 | 430572 | 345 |
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.11.3) | **0.030** | 0.187 | 0.441 | 2.032 | 0.45 | 148135 | 107 |
+| go (1.13) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | **0.085** | 0.086 | 0.091 | 0.274 | 0.04 | 30440 | 392 |
 <!-- Result till here -->

@@ -10,8 +10,8 @@ bottom of this page.
 
 <!-- Result from here -->
 ### Top 5 Ranking
-|     | Requests/second | Latency (milliseconds) | Verbosity |
-|:---:| --------------- | ---------------------- | --------- |
+|     | Rate | Latency | Verbosity |
+|:---:| ---- | ------- | --------- |
 | :one: | agoo-c (c) | agoo-c (c) | agoo (ruby) |
 | :two: | agoo (ruby) | agoo (ruby) | agoo-c (c) |
 | :three: | graphql-go (go) | graphql-go (go) | graphql-go (go) |
@@ -23,8 +23,13 @@ bottom of this page.
 - Connections: 1000
 - Duration: 20 seconds
 
+- **Rates** are in requests per second.
+- **Latency** is in milliseconds.
+- **Verbosity** is the number of non-blank lines of code excluding comments.
+
 | [Rate](rates.md) | [Latency](latency.md) | [Verbosity](verbosity.md) | [README](README.md) |
 | ---------------- | --------------------- | ------------------------- | ------------------- |
+
 <!-- Result till here -->
 
 ## Requirements

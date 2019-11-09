@@ -336,8 +336,8 @@ puts $out.string
 def update_readme(lats, rates, verbs)
   out = StringIO.new()
   out.puts('### Top 5 Ranking')
-  out.puts('|     | Requests/second |     | Latency (milliseconds) | Verbosity |')
-  out.puts('|:---:| --------------- |:---:| ---------------------- | --------- |')
+  out.puts('|     | Requests/second | Latency (milliseconds) | Verbosity |')
+  out.puts('|:---:| --------------- | ---------------------- | --------- |')
 
   lats[0..4].size.times { |i|
     lt = lats[i]
@@ -407,7 +407,7 @@ def update_verbs(verbs)
   out.puts('| Language | Framework | Requests/second | Latency (msecs) | Verbosity |')
   out.puts('| -------------------| ---------------------- | -------------------:| ------:| -----:|')
   verbs.each { |t|
-    out.puts("| %s (%s) | [%s](%s) (%s) | %d | %.2f ms | %d |" %
+    out.puts("| %s (%s) | [%s](%s) (%s) | %d | %.2f ms | **%d** |" %
 	     [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.latency_mean, t.verbosity])
   }
 

@@ -10,10 +10,10 @@ bottom of this page.
 
 <!-- Result from here -->
 ### Top 5 Ranking
-|     | Requests/second |     | Latency (milliseconds) | Verbosity |
-|:---:| --------------- |:---:| ---------------------- | --------- |
-| :one: | agoo-c (c) | agoo-c (c) | agoo (ruby) |
-| :two: | agoo (ruby) | agoo (ruby) | agoo-c (c) |
+|     | Requests/second | Latency (milliseconds) | Verbosity |
+|:---:| --------------- | ---------------------- | --------- |
+| :one: | agoo-c (c) | agoo (ruby) | agoo (ruby) |
+| :two: | agoo (ruby) | agoo-c (c) | agoo-c (c) |
 | :three: | graphql-go (go) | graphql-go (go) | graphql-go (go) |
 
 #### Parameters

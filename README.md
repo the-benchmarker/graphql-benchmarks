@@ -12,9 +12,9 @@ bottom of this page.
 ### Top 5 Ranking
 |     | Requests/second |     | Latency (milliseconds) | Verbosity |
 |:---:| --------------- |:---:| ---------------------- | --------- |
-| :one: | agoo-c (c) | agoo-c (c) | agoo-c (c) |
-| :two: | agoo (ruby) | agoo (ruby) | graphql-go (go) |
-| :three: | graphql-go (go) | graphql-go (go) | agoo (ruby) |
+| :one: | agoo-c (c) | agoo-c (c) | agoo (ruby) |
+| :two: | agoo (ruby) | agoo (ruby) | agoo-c (c) |
+| :three: | graphql-go (go) | graphql-go (go) | graphql-go (go) |
 
 #### Parameters
 - Last updated: 2019-11-08
@@ -26,9 +26,6 @@ bottom of this page.
 | [Latency](latency.md) | [Throughput](rates.md) | [Verbosity](verbosity.md) | [README](README.md) |
 | --------------------- | --------------------------- | ------------------------- | ------------------- |
 <!-- Result till here -->
-
-| [Latency](latency.md) | [Throughput](throughput.md) | [Verbosity](verbosity.md) |
-| --------------------- | --------------------------- | ------------------------- |
 
 ## Requirements
 

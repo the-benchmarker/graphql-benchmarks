@@ -26,6 +26,7 @@ opts.on('-h', '--help', 'Show this display')                             { puts 
 
 $target_names = opts.parse(ARGV)
 $languages = {}
+$root = File.expand_path('../frameworks', __FILE__)
 
 # Serves as the collector of results and description of a target.
 class Target
@@ -124,14 +125,31 @@ class Target
     (@bytes / 1024 / 1024).to_f / @duration.to_f
   end
 
+  def count_lines
+    cnt = 0
+    @code_files.each { |filename|
+      path = "#{$root}/#{@name}/#{filename}"
+      next unless File.readable?(path)
+      f = File.new(path)
+      f.each_line do |line|
+	line.strip!
+	next if line.length == 0
+	# skip comments
+	next if line[0] == '#'
+	next if line[0] == '/' && 1 < line.length && line[1] == '/'
+	cnt += 1 + line.length / 80
+      end
+    }
+    cnt
+  end
+
 end
 
 ### Collect the frameworks ########################################################
 
 $targets = []
 
-root = File.expand_path('../frameworks', __FILE__)
-Dir.glob(root + '/*').each { |dir|
+Dir.glob($root + '/*').each { |dir|
   base = File.basename(dir)
   info = YAML.load(File.read(dir + "/info.yml"))
   next if !$all && info['experimental']
@@ -209,26 +227,9 @@ def benchmark(target, ip)
   [target.rate, target.latency_mean]
 end
 
-def count_lines(filenames)
-  cnt = 0
-  filenames.each { |filename|
-    next unless File.readable?(filename)
-    f = File.new(filename)
-    f.each_line do |line|
-      line.strip!
-      next if line.length == 0
-      # skip comments
-      next if line[0] == '#'
-      next if line[0] == '/' && 1 < line.length && line[1] == '/'
-      cnt += 1 + line.length / 80
-    end
-  }
-  cnt
-end
-
 $targets.each { |target|
   begin
-    target.verbosity = count_lines(target.code_files)
+    target.verbosity = target.count_lines
 
     puts "#{target.name}" if 1 < $verbose
     cid = `docker run -td #{target.name}`.strip
@@ -277,7 +278,7 @@ $emojis = [ 'one', 'two', 'three', 'four', 'five' ]
 
 lats = $targets.sort{ |ta, tb| ta.latency_mean <=> tb.latency_mean }
 rates = $targets.sort{ |ta, tb| tb.rate <=> ta.rate }
-verbs = $targets.sort{ |ta, tb| tb.verbosity <=> ta.verbosity }
+verbs = $targets.sort{ |ta, tb| ta.verbosity <=> tb.verbosity }
 
 def add_params(out)
   out.puts('#### Parameters')
@@ -322,11 +323,11 @@ rates.each { |t|
 $out.puts()
 
 $out.puts('### Latency')
-$out.puts('| Language | Framework | Average Latency | Mean Latency | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation | Rate | Verbosity |')
+$out.puts('| Language | Framework | Average Latency | Mean Latency | 90th percentile | 99th percentile | Standard Deviation | Req/sec | Verbosity |')
 $out.puts('| ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| ---------------:| -----------------:| ------------------:| ------:| ------:|')
 lats.each { |t|
-  $out.puts("| %s (%s) | [%s](%s) (%s) | %.2f ms | **%.2f ms** | %.2f ms | %.2f ms | %.2f ms | %.2f | %.2f | %d |" %
-	     [t.lang, t.langver, t.name, t.link, t.version, t.latency_average, t.latency_mean, t.latency_90, t.latency_99, t.latency_999, t.latency_stdev, t.throughput, t.verbosity])
+  $out.puts("| %s (%s) | [%s](%s) (%s) | %.2f ms | **%.2f ms** | %.2f ms | %.2f ms | %.2f | %.2f | %d |" %
+	     [t.lang, t.langver, t.name, t.link, t.version, t.latency_average, t.latency_mean, t.latency_90, t.latency_99, t.latency_stdev, t.rate.to_i, t.verbosity])
 }
 $out.puts()
 
@@ -362,11 +363,11 @@ def update_latency(lats)
   add_links(out)
   out.puts()
   out.puts('### Latency')
-  out.puts('| Language | Framework | Average Latency | Mean Latency | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation | Rate | Verbosity |')
-  out.puts('| ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| ---------------:| -----------------:| ------------------:| ------:| ------:|')
+  out.puts('| Language | Framework | Average Latency | Mean Latency | 90th percentile | 99th percentile | Standard Deviation | Req/sec | Verbosity |')
+  out.puts('| ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| -----------------:| ------------------:| ------:| ------:|')
   lats.each { |t|
-    out.puts("| %s (%s) | [%s](%s) (%s) | %.2f ms | **%.2f ms** | %.2f ms | %.2f ms | %.2f ms | %.2f | %.2f | %d |" %
-	     [t.lang, t.langver, t.name, t.link, t.version, t.latency_average, t.latency_mean, t.latency_90, t.latency_99, t.latency_999, t.latency_stdev, t.throughput, t.verbosity])
+    out.puts("| %s (%s) | [%s](%s) (%s) | %.2f ms | **%.2f ms** | %.2f ms | %.2f ms | %.2f | %d | %d |" %
+	     [t.lang, t.langver, t.name, t.link, t.version, t.latency_average, t.latency_mean, t.latency_90, t.latency_99, t.latency_stdev, t.rate.to_i, t.verbosity])
   }
   path = File.expand_path('../latency.md', __FILE__)
   content = File.read(path)
@@ -385,7 +386,7 @@ def update_rates(rates)
   out.puts('| Language | Framework | Requests/second | Throughput (MB/sec) | Latency (msecs) | Verbosity |')
   out.puts('| -------------------| ---------------------- | ---------------:| -------------------:| ------:| -----:|')
   rates.each { |t|
-    out.puts("| %s (%s) | [%s](%s) (%s) | %d | %.2f MB/sec |" %
+    out.puts("| %s (%s) | [%s](%s) (%s) | **%d** | %.2f MB/sec | %.2f ms | %d |" %
 	     [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.throughput, t.latency_mean, t.verbosity])
   }
 
@@ -403,11 +404,11 @@ def update_verbs(verbs)
   out.puts()
 
   out.puts('### Verbosity (lines of code)')
-  out.puts('| Language | Framework | Requests/second | Throughput (MB/sec) | Latency (msecs) | Verbosity |')
-  out.puts('| -------------------| ---------------------- | ---------------:| -------------------:| ------:| -----:|')
+  out.puts('| Language | Framework | Requests/second | Latency (msecs) | Verbosity |')
+  out.puts('| -------------------| ---------------------- | -------------------:| ------:| -----:|')
   verbs.each { |t|
-    out.puts("| %s (%s) | [%s](%s) (%s) | %d | %.2f MB/sec |" %
-	     [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.throughput, t.latency_mean, t.verbosity])
+    out.puts("| %s (%s) | [%s](%s) (%s) | %d | %.2f ms | %d |" %
+	     [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.latency_mean, t.verbosity])
   }
 
   path = File.expand_path('../verbosity.md', __FILE__)

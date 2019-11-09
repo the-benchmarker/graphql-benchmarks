@@ -6,6 +6,7 @@ language-version: "2.6"
 bench-adjust: 0.5
 experimental: false
 post-format: graphql
+code: app.rb
 
 # This Agoo framework uses multiple workers. This setup would be used
 # if data is stored in a centralized store such as a database or is

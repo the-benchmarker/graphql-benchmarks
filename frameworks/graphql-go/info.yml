@@ -6,3 +6,4 @@ language-version: "1.13"
 bench-adjust: 0.5
 experimental: false
 post-format: graphql
+code: main.go

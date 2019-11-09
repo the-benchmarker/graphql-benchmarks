@@ -10,21 +10,21 @@ bottom of this page.
 
 <!-- Result from here -->
 ### Top 5 Ranking
-|     | Requests/second |     | Latency (milliseconds) |
-|:---:| --------------- |:---:| ---------------------- |
-| :one: | agoo-c (c) | :one: | agoo-c (c) |
-| :two: | agoo (ruby) | :two: | agoo (ruby) |
-| :three: | graphql-go (go) | :three: | graphql-go (go) |
+|     | Requests/second |     | Latency (milliseconds) | Verbosity |
+|:---:| --------------- |:---:| ---------------------- | --------- |
+| :one: | agoo-c (c) | agoo-c (c) | agoo-c (c) |
+| :two: | agoo (ruby) | agoo (ruby) | graphql-go (go) |
+| :three: | graphql-go (go) | graphql-go (go) | agoo (ruby) |
 
 #### Parameters
-- Last updates: 2019-11-07
+- Last updated: 2019-11-08
 - OS: Linux (version: 5.3.8-050308-generic, arch: x86_64)
 - CPU Cores: 12
 - Connections: 1000
 - Duration: 20 seconds
 
-### Result Details Sorted
-
+| [Latency](latency.md) | [Throughput](rates.md) | [Verbosity](verbosity.md) | [README](README.md) |
+| --------------------- | --------------------------- | ------------------------- | ------------------- |
 <!-- Result till here -->
 
 | [Latency](latency.md) | [Throughput](throughput.md) | [Verbosity](verbosity.md) |

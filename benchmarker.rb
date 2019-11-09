@@ -287,10 +287,10 @@ def add_header(out)
   out.puts("- CPU Cores: #{Etc.nprocessors}")
   out.puts("- Connections: #{$connections}")
   out.puts("- Duration: #{$duration} seconds")
-  out.puts()
-  out.puts("- **Rates** are in requests per second.")
-  out.puts("- **Latency** is in milliseconds.")
-  out.puts("- **Verbosity** is the number of non-blank lines of code excluding comments.")
+  out.puts("- Units:")
+  out.puts("  - _Rates_ are in requests per second.")
+  out.puts("  - _Latency_ is in milliseconds.")
+  out.puts("  - _Verbosity_ is the number of non-blank lines of code excluding comments.")
   out.puts()
   out.puts("| [Rate](rates.md) | [Latency](latency.md) | [Verbosity](verbosity.md) | [README](README.md) |")
   out.puts("| ---------------- | --------------------- | ------------------------- | ------------------- |")
@@ -299,14 +299,38 @@ end
 
 # TBD use functions for common stuff
 def show_results(lats, rates, verbs)
+  puts
   puts "\x1b[1mTop 5 Ranking\x1b[m"
   puts "\x1b[4mRate                \x1b[m  \x1b[4mLatency             \x1b[m  \x1b[4mVerbosity           \x1b[m"
   lats[0..4].size.times { |i|
     lt = lats[i]
     rt = rates[i]
     vt = verbs[i]
-    puts "%20s  %20s  %20s" % ["#{rt.name} (#{rt.lang})", "#{lt.name} (#{lt.lang})", "#{vt.name} (#{vt.lang})"]
+    puts "%-20s  %-20s  %-20s" % ["#{rt.name} (#{rt.lang})", "#{lt.name} (#{lt.lang})", "#{vt.name} (#{vt.lang})"]
   }
+  puts
+  puts "\x1b[1mParameters\x1b[m"
+  puts "- Last updated: #{Time.now.strftime("%Y-%m-%d")}"
+  puts "- OS: #{`uname -s`.rstrip} (version: #{`uname -r`.rstrip}, arch: #{`uname -m`.rstrip})"
+  puts "- CPU Cores: #{Etc.nprocessors}"
+  puts "- Connections: #{$connections}"
+  puts "- Duration: #{$duration} seconds"
+  puts "- Units:"
+  puts "  - Rates are in requests per second."
+  puts "  - Latency is in milliseconds."
+  puts "  - Verbosity is the number of non-blank lines of code excluding comments."
+  puts
+  puts "\x1b[1mRates\x1b[m"
+  puts "\x1b[4mLanguage            \x1b[m  \x1b[4mFramework           \x1b[m  \x1b[4mRate      \x1b[m  \x1b[4mThroughput\x1b[m  \x1b[4mLatency   \x1b[m  \x1b[4mVerbosity \x1b[m"
+  rates.each { |t|
+    puts "%-20s  %-20s  %10d  %10.2f  %10.3f  %10d" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.throughput, t.latency_mean, t.verbosity])
+
+
+
+
+
+
+}
 
 end
 

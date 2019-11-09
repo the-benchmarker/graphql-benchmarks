@@ -280,7 +280,7 @@ lats = $targets.sort{ |ta, tb| ta.latency_mean <=> tb.latency_mean }
 rates = $targets.sort{ |ta, tb| tb.rate <=> ta.rate }
 verbs = $targets.sort{ |ta, tb| ta.verbosity <=> tb.verbosity }
 
-def add_header(out)
+def add_header(out, label)
   out.puts('#### Parameters')
   out.puts("- Last updated: #{Time.now.strftime("%Y-%m-%d")}")
   out.puts("- OS: #{`uname -s`.rstrip} (version: #{`uname -r`.rstrip}, arch: #{`uname -m`.rstrip})")
@@ -295,6 +295,11 @@ def add_header(out)
   out.puts("| [Rate](rates.md) | [Latency](latency.md) | [Verbosity](verbosity.md) | [README](README.md) |")
   out.puts("| ---------------- | --------------------- | ------------------------- | ------------------- |")
   out.puts()
+  unless label.nil?
+    out.puts("### #{label}")
+    out.puts('| Language | Framework(version) | Mean Latency | Average Latency | 90th % | 99th % | Std Dev | Rate | Verbosity |')
+    out.puts('| -------- | ------------------ | ------------:| ---------------:| ------:| ------:| -------:| ----:| ---------:|')
+  end
 end
 
 # TBD use functions for common stuff
@@ -323,14 +328,12 @@ def show_results(lats, rates, verbs)
   puts "\x1b[1mRates\x1b[m"
   puts "\x1b[4mLanguage            \x1b[m  \x1b[4mFramework           \x1b[m  \x1b[4mRate      \x1b[m  \x1b[4mThroughput\x1b[m  \x1b[4mLatency   \x1b[m  \x1b[4mVerbosity \x1b[m"
   rates.each { |t|
-    puts "%-20s  %-20s  %10d  %10.2f  %10.3f  %10d" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.throughput, t.latency_mean, t.verbosity])
+    puts "%-20s  %-20s  %10d  %10.2f  %10.3f  %10d" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.throughput, t.latency_mean, t.verbosity]
+  }
+  puts
+  puts "\x1b[1mLatency\x1b[m"
 
 
-
-
-
-
-}
 
 end
 
@@ -386,7 +389,7 @@ def update_readme(lats, rates, verbs)
 	      [$emojis[i], rt.name, rt.lang, lt.name, lt.lang, vt.name, vt.lang])
   }
   out.puts()
-  add_header(out)
+  add_header(out, nil)
 
   path = File.expand_path('../README.md', __FILE__)
   readme = File.read(path)
@@ -397,14 +400,10 @@ end
 def update_latency(lats)
   out = StringIO.new()
   out.puts()
-  add_header(out)
-
-  out.puts('### Latency')
-  out.puts('| Language | Framework(version) | Mean Latency | Average Latency | 90th % | 99th % | Std Dev | Rate | Verbosity |')
-  out.puts('| -------- | ------------------ | ------------:| ---------------:| ------:| ------:| -------:| ----:| ---------:|')
+  add_header(out, 'Latency')
   lats.each { |t|
-    out.puts("| %s (%s) | [%s](%s) (%s) | **%.3f** | %.3f | %.3f | %.3f | %.2f | %d | %d |" %
-	     [t.lang, t.langver, t.name, t.link, t.version, t.latency_mean, t.latency_average, t.latency_90, t.latency_99, t.latency_stdev, t.rate.to_i, t.verbosity])
+    out.puts("| %s (%s) | [%s](%s) (%s) | %d | **%.3f** | %.3f | %.3f | %.3f | %.2f | %d |" %
+	     [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.latency_mean, t.latency_average, t.latency_90, t.latency_99, t.latency_stdev, t.verbosity])
   }
   path = File.expand_path('../latency.md', __FILE__)
   content = File.read(path)
@@ -415,14 +414,10 @@ end
 def update_rates(rates)
   out = StringIO.new()
   out.puts()
-  add_header(out)
-
-  out.puts('### Rate (requests per second)')
-  out.puts('| Language | Framework(version) | Rate | Throughput (MB/sec) | Latency | Verbosity |')
-  out.puts('| ---------| ------------------ | ----:| -------------------:| -------:| ---------:|')
+  add_header(out, 'Rate')
   rates.each { |t|
-    out.puts("| %s (%s) | [%s](%s) (%s) | **%d** | %.2f | %.3f | %d |" %
-	     [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.throughput, t.latency_mean, t.verbosity])
+    out.puts("| %s (%s) | [%s](%s) (%s) | **%d** | %.3f | %.3f | %.3f | %.3f | %.2f | %d |" %
+	     [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.latency_mean, t.latency_average, t.latency_90, t.latency_99, t.latency_stdev, t.verbosity])
   }
 
   path = File.expand_path('../rates.md', __FILE__)
@@ -434,14 +429,10 @@ end
 def update_verbs(verbs)
   out = StringIO.new()
   out.puts()
-  add_header(out)
-
-  out.puts('### Verbosity (lines of code)')
-  out.puts('| Language | Framework(version) | Rate | Latency | Verbosity |')
-  out.puts('| ---------| ------------------ | ----:| -------:| ---------:|')
+  add_header(out, 'Verbosity')
   verbs.each { |t|
-    out.puts("| %s (%s) | [%s](%s) (%s) | %d | %.3f | **%d** |" %
-	     [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.latency_mean, t.verbosity])
+    out.puts("| %s (%s) | [%s](%s) (%s) | %d | %.3f | %.3f | %.3f | %.3f | %.2f | **%d** |" %
+	     [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.latency_mean, t.latency_average, t.latency_90, t.latency_99, t.latency_stdev, t.verbosity])
   }
 
   path = File.expand_path('../verbosity.md', __FILE__)

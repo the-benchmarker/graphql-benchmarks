@@ -23,8 +23,8 @@ bottom of this page.
 - Connections: 1000
 - Duration: 20 seconds
 
-| [Latency](latency.md) | [Rate](rates.md) | [Verbosity](verbosity.md) | [README](README.md) |
-| --------------------- | --------------------------- | ------------------------- | ------------------- |
+| [Rate](rates.md) | [Latency](latency.md) | [Verbosity](verbosity.md) | [README](README.md) |
+| ---------------- | --------------------- | ------------------------- | ------------------- |
 <!-- Result till here -->
 
 ## Requirements

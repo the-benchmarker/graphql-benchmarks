@@ -9,13 +9,12 @@
 - Connections: 1000
 - Duration: 20 seconds
 
-| [Latency](latency.md) | [Rate](rates.md) | [Verbosity](verbosity.md) | [README](README.md) |
-| --------------------- | --------------------------- | ------------------------- | ------------------- |
+| [Rate](rates.md) | [Latency](latency.md) | [Verbosity](verbosity.md) | [README](README.md) |
+| ---------------- | --------------------- | ------------------------- | ------------------- |
 
 ### Latency
-| Language | Framework | Average Latency | Mean Latency | 90th percentile | 99th percentile | StdDev | Req/sec | Verbosity |
 | ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| -----------------:| ------------------:| ------:| ------:|
-| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.7.2) | 0.060 ms | **0.029 ms** | 0.176 ms | 0.186 ms | 0.08 | 432405 | 345 |
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.11.3) | 0.142 ms | **0.029 ms** | 0.228 ms | 1.869 ms | 0.36 | 163173 | 107 |
-| go (1.13) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | 0.084 ms | **0.085 ms** | 0.091 ms | 0.116 ms | 0.03 | 30754 | 392 |
+| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.7.2) | **0.029** | 0.062 | 0.176 | 0.186 | 0.09 | 435769 | 345 |
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.11.3) | **0.029** | 0.216 | 0.703 | 2.893 | 0.54 | 176891 | 107 |
+| go (1.13) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | **0.083** | 0.077 | 0.090 | 0.104 | 0.03 | 30833 | 392 |
 <!-- Result till here -->

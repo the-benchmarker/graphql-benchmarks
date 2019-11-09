@@ -291,8 +291,8 @@ def add_params(out)
 end
 
 def add_links(out)
-  out.puts("| [Latency](latency.md) | [Rate](rates.md) | [Verbosity](verbosity.md) | [README](README.md) |")
-  out.puts("| --------------------- | --------------------------- | ------------------------- | ------------------- |")
+  out.puts("| [Rate](rates.md) | [Latency](latency.md) | [Verbosity](verbosity.md) | [README](README.md) |")
+  out.puts("| ---------------- | --------------------- | ------------------------- | ------------------- |")
 end
 
 # TBD use functions for common stuff
@@ -300,8 +300,8 @@ end
 $out = StringIO.new()
 
 $out.puts('### Top 5 Ranking')
-$out.puts('|     | Requests/second |     | Latency (milliseconds) | Verbosity |')
-$out.puts('|:---:| --------------- |:---:| ---------------------- | --------- |')
+$out.puts('|     | Requests/second | Latency (milliseconds) | Verbosity |')
+$out.puts('|:---:| --------------- | ---------------------- | --------- |')
 
 lats[0..4].size.times { |i|
   lt = lats[i]
@@ -318,16 +318,16 @@ $out.puts('### Rate (requests per second)')
 $out.puts('| Language | Framework | Requests/second | Throughput (MB/sec) |')
 $out.puts('| -------------------| ---------------------- | ---------------:| -------------------:|')
 rates.each { |t|
-  $out.puts("| %s (%s) | [%s](%s) (%s) | %d | %.2f MB/sec |" % [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.throughput])
+  $out.puts("| %s (%s) | [%s](%s) (%s) | %d | %.2f |" % [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.throughput])
 }
 $out.puts()
 
 $out.puts('### Latency')
-$out.puts('| Language | Framework | Average Latency | Mean Latency | 90th percentile | 99th percentile | Standard Deviation | Req/sec | Verbosity |')
+$out.puts('| Language | Framework | Mean Latency (msecs) | Average Latency (msecs) | 90th % (msecs) | 99th % (msecs) | Standard Deviation | Req/sec | Verbosity |')
 $out.puts('| ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| ---------------:| -----------------:| ------------------:| ------:| ------:|')
 lats.each { |t|
-  $out.puts("| %s (%s) | [%s](%s) (%s) | %.3f ms | **%.3f ms** | %.3f ms | %.3f ms | %.2f | %.2f | %d |" %
-	     [t.lang, t.langver, t.name, t.link, t.version, t.latency_average, t.latency_mean, t.latency_90, t.latency_99, t.latency_stdev, t.rate.to_i, t.verbosity])
+  $out.puts("| %s (%s) | [%s](%s) (%s) | **%.3f** | %.3f | %.3f | %.3f | %.2f | %.2f | %d |" %
+	     [t.lang, t.langver, t.name, t.link, t.version, t.latency_mean, t.latency_average, t.latency_90, t.latency_99, t.latency_stdev, t.rate.to_i, t.verbosity])
 }
 $out.puts()
 
@@ -363,11 +363,11 @@ def update_latency(lats)
   add_links(out)
   out.puts()
   out.puts('### Latency')
-  out.puts('| Language | Framework | Average Latency | Mean Latency | 90th percentile | 99th percentile | StdDev | Req/sec | Verbosity |')
+$out.puts('| Language | Framework | Mean Latency (msecs) | Average Latency (msecs) | 90th % (msecs) | 99th % (msecs) | Standard Deviation | Req/sec | Verbosity |')
   out.puts('| ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| -----------------:| ------------------:| ------:| ------:|')
   lats.each { |t|
-    out.puts("| %s (%s) | [%s](%s) (%s) | %.3f ms | **%.3f ms** | %.3f ms | %.3f ms | %.2f | %d | %d |" %
-	     [t.lang, t.langver, t.name, t.link, t.version, t.latency_average, t.latency_mean, t.latency_90, t.latency_99, t.latency_stdev, t.rate.to_i, t.verbosity])
+    out.puts("| %s (%s) | [%s](%s) (%s) | **%.3f** | %.3f | %.3f | %.3f | %.2f | %d | %d |" %
+	     [t.lang, t.langver, t.name, t.link, t.version, t.latency_mean, t.latency_average, t.latency_90, t.latency_99, t.latency_stdev, t.rate.to_i, t.verbosity])
   }
   path = File.expand_path('../latency.md', __FILE__)
   content = File.read(path)
@@ -386,7 +386,7 @@ def update_rates(rates)
   out.puts('| Language | Framework | Requests/second | Throughput (MB/sec) | Latency (msecs) | Verbosity |')
   out.puts('| -------------------| ---------------------- | ---------------:| -------------------:| ------:| -----:|')
   rates.each { |t|
-    out.puts("| %s (%s) | [%s](%s) (%s) | **%d** | %.2f MB/sec | %.3f ms | %d |" %
+    out.puts("| %s (%s) | [%s](%s) (%s) | **%d** | %.2f | %.3f | %d |" %
 	     [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.throughput, t.latency_mean, t.verbosity])
   }
 

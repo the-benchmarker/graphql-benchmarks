@@ -9,8 +9,8 @@
 - Connections: 1000
 - Duration: 20 seconds
 
-| [Latency](latency.md) | [Throughput](throughput.md) |
-| --------------------- | --------------------------- |
+| [Latency](latency.md) | [Throughput](throughput.md) | [Verbosity](verbosity.md) | [README](README.md) |
+| --------------------- | --------------------------- | ------------------------- | ------------------- |
 
 ### Latency
 | Language (Runtime) | Framework (Middleware) | Average Latency | Mean Latency | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation |

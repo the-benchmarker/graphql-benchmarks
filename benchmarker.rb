@@ -38,6 +38,7 @@ class Target
   attr_accessor :requests
   attr_accessor :bytes
   attr_accessor :adjust
+  attr_accessor :verbosity
 
   def initialize(info)
     @name = info['name']
@@ -64,6 +65,7 @@ class Target
     @lat_99 = 0.0
     @lat_999 = 0.0
     @lat_cnt = 0
+    @verbosity = 0
   end
 
   def to_s
@@ -207,6 +209,9 @@ end
 
 $targets.each { |target|
   begin
+
+    # TBD code_lines
+
     puts "#{target.name}" if 1 < $verbose
     cid = `docker run -td #{target.name}`.strip
     remote_ip = nil
@@ -254,27 +259,35 @@ emojis = [ 'one', 'two', 'three', 'four', 'five' ]
 
 lats = $targets.sort{ |ta, tb| ta.latency_mean <=> tb.latency_mean }
 rates = $targets.sort{ |ta, tb| tb.rate <=> ta.rate }
+verbosity = $targets.sort{ |ta, tb| tb.verbosity <=> ta.verbosity }
 
 $out = StringIO.new()
 
 $out.puts('### Top 5 Ranking')
-$out.puts('|     | Requests/second |     | Latency (milliseconds) |')
-$out.puts('|:---:| --------------- |:---:| ---------------------- |')
+$out.puts('|     | Requests/second |     | Latency (milliseconds) | Verbosity |')
+$out.puts('|:---:| --------------- |:---:| ---------------------- | --------- |')
 
 lats[0..4].size.times { |i|
   lt = lats[i]
   rt = rates[i]
-  $out.puts("| :%s: | %s (%s) | :%s: | %s (%s) |" % [emojis[i], rt.name, rt.lang, emojis[i], lt.name, lt.lang])
+  vt = verbosity[i]
+  $out.puts("| :%s: | %s (%s) | %s (%s) | %s (%s) |" %
+	    [emojis[i], rt.name, rt.lang, lt.name, lt.lang, vt.name, vt.lang])
 }
 $out.puts()
 
 $out.puts('#### Parameters')
-$out.puts("- Last updates: #{Time.now.strftime("%Y-%m-%d")}")
+$out.puts("- Last updated: #{Time.now.strftime("%Y-%m-%d")}")
 $out.puts("- OS: #{`uname -s`.rstrip} (version: #{`uname -r`.rstrip}, arch: #{`uname -m`.rstrip})")
 $out.puts("- CPU Cores: #{Etc.nprocessors}")
 $out.puts("- Connections: #{$connections}")
 $out.puts("- Duration: #{$duration} seconds")
 $out.puts()
+
+| [Latency](latency.md) | [Throughput](throughput.md) | [Verbosity](verbosity.md) | [README](README.md) |
+| --------------------- | --------------------------- | ------------------------- | ------------------- |
+
+# TBD put in different files
 
 $out.puts('### Rate (requests per second)')
 $out.puts('| Language (Runtime) | Framework (Middleware) | Requests/second | Throughput (MB/sec) |')

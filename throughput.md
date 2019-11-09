@@ -9,8 +9,8 @@
 - Connections: 1000
 - Duration: 20 seconds
 
-| [Latency](latency.md) | [Throughput](throughput.md) |
-| --------------------- | --------------------------- |
+| [Latency](latency.md) | [Throughput](throughput.md) | [Verbosity](verbosity.md) | [README](README.md) |
+| --------------------- | --------------------------- | ------------------------- | ------------------- |
 
 ### Rate (requests per second)
 | Language (Runtime) | Framework (Middleware) | Requests/second | Throughput (MB/sec) |

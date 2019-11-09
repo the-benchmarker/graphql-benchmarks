@@ -280,29 +280,6 @@ lats = $targets.sort{ |ta, tb| ta.latency_mean <=> tb.latency_mean }
 rates = $targets.sort{ |ta, tb| tb.rate <=> ta.rate }
 verbs = $targets.sort{ |ta, tb| ta.verbosity <=> tb.verbosity }
 
-def add_header(out, label)
-  out.puts('#### Parameters')
-  out.puts("- Last updated: #{Time.now.strftime("%Y-%m-%d")}")
-  out.puts("- OS: #{`uname -s`.rstrip} (version: #{`uname -r`.rstrip}, arch: #{`uname -m`.rstrip})")
-  out.puts("- CPU Cores: #{Etc.nprocessors}")
-  out.puts("- Connections: #{$connections}")
-  out.puts("- Duration: #{$duration} seconds")
-  out.puts("- Units:")
-  out.puts("  - _Rates_ are in requests per second.")
-  out.puts("  - _Latency_ is in milliseconds.")
-  out.puts("  - _Verbosity_ is the number of non-blank lines of code excluding comments.")
-  out.puts()
-  out.puts("| [Rate](rates.md) | [Latency](latency.md) | [Verbosity](verbosity.md) | [README](README.md) |")
-  out.puts("| ---------------- | --------------------- | ------------------------- | ------------------- |")
-  out.puts()
-  unless label.nil?
-    out.puts("### #{label}")
-    out.puts('| Language | Framework(version) | Mean Latency | Average Latency | 90th % | 99th % | Std Dev | Rate | Verbosity |')
-    out.puts('| -------- | ------------------ | ------------:| ---------------:| ------:| ------:| -------:| ----:| ---------:|')
-  end
-end
-
-# TBD use functions for common stuff
 def show_results(lats, rates, verbs)
   puts
   puts "\x1b[1mTop 5 Ranking\x1b[m"
@@ -326,54 +303,45 @@ def show_results(lats, rates, verbs)
   puts "  - Verbosity is the number of non-blank lines of code excluding comments."
   puts
   puts "\x1b[1mRates\x1b[m"
-  puts "\x1b[4mLanguage            \x1b[m  \x1b[4mFramework           \x1b[m  \x1b[4mRate      \x1b[m  \x1b[4mThroughput\x1b[m  \x1b[4mLatency   \x1b[m  \x1b[4mVerbosity \x1b[m"
+  puts "\x1b[4mLanguage            \x1b[m  \x1b[4mFramework           \x1b[m  \x1b[4m      \x1b[1mRate\x1b[m  \x1b[4m   Latency\x1b[m  \x1b[4m Verbosity\x1b[m  \x1b[4mThroughput\x1b[m"
   rates.each { |t|
-    puts "%-20s  %-20s  %10d  %10.2f  %10.3f  %10d" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.throughput, t.latency_mean, t.verbosity]
+    puts "%-20s  %-20s  \x1b[1m%10d\x1b[m  %10.3f  %10d  %10.2f" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.latency_mean, t.verbosity, t.throughput]
   }
   puts
   puts "\x1b[1mLatency\x1b[m"
-
-
-
+  puts "\x1b[4mLanguage            \x1b[m  \x1b[4mFramework           \x1b[m  \x1b[4m      Rate\x1b[m  \x1b[4m   \x1b[1mLatency\x1b[m  \x1b[4m Verbosity\x1b[m  \x1b[4m   Average\x1b[m  \x1b[4m    90th %\x1b[m  \x1b[4m    99th %\x1b[m  \x1b[4m   Std Dev\x1b[m"
+  rates.each { |t|
+    puts "%-20s  %-20s  %10d  \x1b[1m%10.3f\x1b[m  %10d  %10.2f" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.latency_mean, t.verbosity, t.latency_average, t.latency_90, t.latency_99, t.latency_stdev]
+  }
+  puts
 end
 
-show_results(lats, rates, verbs)
+def add_header(out, label)
+  out.puts('#### Parameters')
+  out.puts("- Last updated: #{Time.now.strftime("%Y-%m-%d")}")
+  out.puts("- OS: #{`uname -s`.rstrip} (version: #{`uname -r`.rstrip}, arch: #{`uname -m`.rstrip})")
+  out.puts("- CPU Cores: #{Etc.nprocessors}")
+  out.puts("- Connections: #{$connections}")
+  out.puts("- Duration: #{$duration} seconds")
+  unless label.nil?
+    out.puts("- Units:")
+    out.puts("  - _Rates_ are in requests per second.")
+    out.puts("  - _Latency_ is in milliseconds.")
+    out.puts("  - _Verbosity_ is the number of non-blank lines of code excluding comments.")
+    out.puts()
+    out.puts("| [Rate](rates.md) | [Latency](latency.md) | [Verbosity](verbosity.md) | [README](README.md) |")
+    out.puts("| ---------------- | --------------------- | ------------------------- | ------------------- |")
+    out.puts()
+    out.puts("### #{label}")
+    out.puts('| Language | Framework(version) | Mean Latency | Average Latency | 90th % | 99th % | Std Dev | Rate | Verbosity |')
+    out.puts('| -------- | ------------------ | ------------:| ---------------:| ------:| ------:| -------:| ----:| ---------:|')
+  end
+end
 
-$out = StringIO.new()
-
-$out.puts('### Top 5 Ranking')
-$out.puts('|     | Requests/second | Latency (milliseconds) | Verbosity |')
-$out.puts('|:---:| --------------- | ---------------------- | --------- |')
-
-lats[0..4].size.times { |i|
-  lt = lats[i]
-  rt = rates[i]
-  vt = verbs[i]
-  $out.puts("| :%s: | %s (%s) | %s (%s) | %s (%s) |" %
-	    [$emojis[i], rt.name, rt.lang, lt.name, lt.lang, vt.name, vt.lang])
-}
-$out.puts()
-
-#add_params($out)
-
-$out.puts('### Rate (requests per second)')
-$out.puts('| Language | Framework | Requests/second | Throughput (MB/sec) |')
-$out.puts('| -------------------| ---------------------- | ---------------:| -------------------:|')
-rates.each { |t|
-  $out.puts("| %s (%s) | [%s](%s) (%s) | %d | %.2f |" % [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.throughput])
-}
-$out.puts()
-
-$out.puts('### Latency')
-$out.puts('| Language | Framework | Mean Latency | Average Latency | 90th % | 99th % | Std Dev | Req/sec | Verbosity |')
-$out.puts('| ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| ---------------:| -----------------:| ------------------:| ------:| ------:|')
-lats.each { |t|
-  $out.puts("| %s (%s) | [%s](%s) (%s) | **%.3f** | %.3f | %.3f | %.3f | %.2f | %.2f | %d |" %
-	     [t.lang, t.langver, t.name, t.link, t.version, t.latency_mean, t.latency_average, t.latency_90, t.latency_99, t.latency_stdev, t.rate.to_i, t.verbosity])
-}
-$out.puts()
-
-puts $out.string
+def replace_content(content, result)
+  content.gsub!(/\<!--\sResult\sfrom\shere\s-->[\s\S]*?<!--\sResult\still\shere\s-->/,
+		"<!-- Result from here -->\n" + result + "<!-- Result till here -->")
+end
 
 def update_readme(lats, rates, verbs)
   out = StringIO.new()
@@ -392,9 +360,9 @@ def update_readme(lats, rates, verbs)
   add_header(out, nil)
 
   path = File.expand_path('../README.md', __FILE__)
-  readme = File.read(path)
-  readme.gsub!(/\<!--\sResult\sfrom\shere\s-->[\s\S]*?<!--\sResult\still\shere\s-->/, "<!-- Result from here -->\n" + out.string + "<!-- Result till here -->")
-  File.write(path, readme)
+  content = File.read(path)
+  replace_content(content, out.string)
+  File.write(path, content)
 end
 
 def update_latency(lats)
@@ -407,7 +375,7 @@ def update_latency(lats)
   }
   path = File.expand_path('../latency.md', __FILE__)
   content = File.read(path)
-  content.gsub!(/\<!--\sResult\sfrom\shere\s-->[\s\S]*?<!--\sResult\still\shere\s-->/, "<!-- Result from here -->\n" + out.string + "<!-- Result till here -->")
+  replace_content(content, out.string)
   File.write(path, content)
 end
 
@@ -422,7 +390,7 @@ def update_rates(rates)
 
   path = File.expand_path('../rates.md', __FILE__)
   content = File.read(path)
-  content.gsub!(/\<!--\sResult\sfrom\shere\s-->[\s\S]*?<!--\sResult\still\shere\s-->/, "<!-- Result from here -->\n" + out.string + "<!-- Result till here -->")
+  replace_content(content, out.string)
   File.write(path, content)
 end
 
@@ -437,9 +405,11 @@ def update_verbs(verbs)
 
   path = File.expand_path('../verbosity.md', __FILE__)
   content = File.read(path)
-  content.gsub!(/\<!--\sResult\sfrom\shere\s-->[\s\S]*?<!--\sResult\still\shere\s-->/, "<!-- Result from here -->\n" + out.string + "<!-- Result till here -->")
+  replace_content(content, out.string)
   File.write(path, content)
 end
+
+show_results(lats, rates, verbs)
 
 if $record
   update_readme(lats, rates, verbs)

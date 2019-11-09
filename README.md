@@ -22,14 +22,6 @@ bottom of this page.
 - CPU Cores: 12
 - Connections: 1000
 - Duration: 20 seconds
-- Units:
-  - _Rates_ are in requests per second.
-  - _Latency_ is in milliseconds.
-  - _Verbosity_ is the number of non-blank lines of code excluding comments.
-
-| [Rate](rates.md) | [Latency](latency.md) | [Verbosity](verbosity.md) | [README](README.md) |
-| ---------------- | --------------------- | ------------------------- | ------------------- |
-
 <!-- Result till here -->
 
 ## Requirements

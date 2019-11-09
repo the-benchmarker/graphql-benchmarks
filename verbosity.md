@@ -11,7 +11,7 @@
 | [Latency](latency.md) | [Throughput](throughput.md) | [Verbosity](verbosity.md) | [README](README.md) |
 | --------------------- | --------------------------- | ------------------------- | ------------------- |
 
-### Rate (requests per second)
+### Verbosity (lines of code)
 | Language (Runtime) | Framework (Middleware) | Requests/second | Throughput (MB/sec) |
 | -------------------| ---------------------- | ---------------:| -------------------:|
 | c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.7.2) | 422167 | 42.60 MB/sec |

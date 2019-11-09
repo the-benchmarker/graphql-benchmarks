@@ -1,7 +1,6 @@
 ## Results
 
 <!-- Result from here -->
-
 #### Parameters
 - Last updates: 2019-11-07
 - OS: Linux (version: 5.3.8-050308-generic, arch: x86_64)

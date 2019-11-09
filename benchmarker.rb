@@ -259,7 +259,22 @@ emojis = [ 'one', 'two', 'three', 'four', 'five' ]
 
 lats = $targets.sort{ |ta, tb| ta.latency_mean <=> tb.latency_mean }
 rates = $targets.sort{ |ta, tb| tb.rate <=> ta.rate }
-verbosity = $targets.sort{ |ta, tb| tb.verbosity <=> ta.verbosity }
+verbs = $targets.sort{ |ta, tb| tb.verbosity <=> ta.verbosity }
+
+def add_params(out)
+  out.puts('#### Parameters')
+  out.puts("- Last updated: #{Time.now.strftime("%Y-%m-%d")}")
+  out.puts("- OS: #{`uname -s`.rstrip} (version: #{`uname -r`.rstrip}, arch: #{`uname -m`.rstrip})")
+  out.puts("- CPU Cores: #{Etc.nprocessors}")
+  out.puts("- Connections: #{$connections}")
+  out.puts("- Duration: #{$duration} seconds")
+  out.puts()
+end
+
+def add_links(out)
+  out.puts("| [Latency](latency.md) | [Throughput](throughput.md) | [Verbosity](verbosity.md) | [README](README.md) |")
+  out.puts("| --------------------- | --------------------------- | ------------------------- | ------------------- |")
+end
 
 $out = StringIO.new()
 
@@ -276,16 +291,7 @@ lats[0..4].size.times { |i|
 }
 $out.puts()
 
-$out.puts('#### Parameters')
-$out.puts("- Last updated: #{Time.now.strftime("%Y-%m-%d")}")
-$out.puts("- OS: #{`uname -s`.rstrip} (version: #{`uname -r`.rstrip}, arch: #{`uname -m`.rstrip})")
-$out.puts("- CPU Cores: #{Etc.nprocessors}")
-$out.puts("- Connections: #{$connections}")
-$out.puts("- Duration: #{$duration} seconds")
-$out.puts()
-
-| [Latency](latency.md) | [Throughput](throughput.md) | [Verbosity](verbosity.md) | [README](README.md) |
-| --------------------- | --------------------------- | ------------------------- | ------------------- |
+add_params($out)
 
 # TBD put in different files
 
@@ -297,19 +303,95 @@ rates.each { |t|
 }
 
 $out.puts()
-$out.puts('### Latency')
-$out.puts('| Language (Runtime) | Framework (Middleware) | Average Latency | Mean Latency | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation |')
-$out.puts('| ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| ---------------:| -----------------:| ------------------:|')
-lats.each { |t|
-  $out.puts("| %s (%s) | [%s](%s) (%s) | %.2f ms | **%.2f ms** | %.2f ms | %.2f ms | %.2f ms | %.2f |" %
-	    [t.lang, t.langver, t.name, t.link, t.version, t.latency_average, t.latency_mean, t.latency_90, t.latency_99, t.latency_999, t.latency_stdev])
-}
-
 puts $out.string
 
-if $record
+def write_readme(lats, rates, verbs)
+  out = StringIO.new()
+  out.puts('### Top 5 Ranking')
+  out.puts('|     | Requests/second |     | Latency (milliseconds) | Verbosity |')
+  out.puts('|:---:| --------------- |:---:| ---------------------- | --------- |')
+
+  lats[0..4].size.times { |i|
+    lt = lats[i]
+    rt = rates[i]
+    vt = verbosity[i]
+    out.puts("| :%s: | %s (%s) | %s (%s) | %s (%s) |" %
+	      [emojis[i], rt.name, rt.lang, lt.name, lt.lang, vt.name, vt.lang])
+  }
+  out.puts()
+  add_params(out)
+  add_links(out)
+
   path = File.expand_path('../README.md', __FILE__)
   readme = File.read(path)
-  readme.gsub!(/\<!--\sResult\sfrom\shere\s-->[\s\S]*?<!--\sResult\still\shere\s-->/, "<!-- Result from here -->\n" + $out.string + "<!-- Result till here -->")
+  readme.gsub!(/\<!--\sResult\sfrom\shere\s-->[\s\S]*?<!--\sResult\still\shere\s-->/, "<!-- Result from here -->\n" + out.string + "<!-- Result till here -->")
   File.write(path, readme)
+end
+
+def write_latency(lats)
+  out = StringIO.new()
+  out.puts()
+  add_params(out)
+  add_links(out)
+  out.puts()
+  out.puts('### Latency')
+  out.puts('| Language | Framework | Average Latency | Mean Latency | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation | Rate | Verbosity |')
+  out.puts('| ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| ---------------:| -----------------:| ------------------:| ------:| ------:|')
+lats.each { |t|
+  out.puts("| %s (%s) | [%s](%s) (%s) | %.2f ms | **%.2f ms** | %.2f ms | %.2f ms | %.2f ms | %.2f | %.2f | %d |" %
+	    [t.lang, t.langver, t.name, t.link, t.version, t.latency_average, t.latency_mean, t.latency_90, t.latency_99, t.latency_999, t.latency_stdev, t.throughput, t.verbosity])
+
+  path = File.expand_path('../latency.md', __FILE__)
+  readme = File.read(path)
+  readme.gsub!(/\<!--\sResult\sfrom\shere\s-->[\s\S]*?<!--\sResult\still\shere\s-->/, "<!-- Result from here -->\n" + out.string + "<!-- Result till here -->")
+  File.write(path, readme)
+end
+
+def write_rates(rates)
+  out = StringIO.new()
+  out.puts()
+  add_params(out)
+  add_links(out)
+  out.puts()
+
+  out.puts('### Rate (requests per second)')
+  out.puts('| Language | Framework | Requests/second | Throughput (MB/sec) | Latency (msecs) | Verbosity |')
+  out.puts('| -------------------| ---------------------- | ---------------:| -------------------:| ------:| -----:|')
+  rates.each { |t|
+    out.puts("| %s (%s) | [%s](%s) (%s) | %d | %.2f MB/sec |" %
+	     [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.throughput, t.latency_mean, t.verbosity])
+  }
+
+  path = File.expand_path('../latency.md', __FILE__)
+  lat_file = File.read(path)
+  readme.gsub!(/\<!--\sResult\sfrom\shere\s-->[\s\S]*?<!--\sResult\still\shere\s-->/, "<!-- Result from here -->\n" + out.string + "<!-- Result till here -->")
+  File.write(path, lat_file)
+end
+
+def write_verbs(verbs)
+  out = StringIO.new()
+  out.puts()
+  add_params(out)
+  add_links(out)
+  out.puts()
+
+  out.puts('### Verbosity (lines of code)')
+  out.puts('| Language | Framework | Requests/second | Throughput (MB/sec) | Latency (msecs) | Verbosity |')
+  out.puts('| -------------------| ---------------------- | ---------------:| -------------------:| ------:| -----:|')
+  verbs.each { |t|
+    out.puts("| %s (%s) | [%s](%s) (%s) | %d | %.2f MB/sec |" %
+	     [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.throughput, t.latency_mean, t.verbosity])
+  }
+
+  path = File.expand_path('../verbosity.md', __FILE__)
+  verb_file = File.read(path)
+  verb_file.gsub!(/\<!--\sResult\sfrom\shere\s-->[\s\S]*?<!--\sResult\still\shere\s-->/, "<!-- Result from here -->\n" + out.string + "<!-- Result till here -->")
+  File.write(path, verb_file)
+end
+
+if $record
+  update_readme(lats, rates, verbs)
+  update_latency(lats)
+  update_rates(rates)
+  update_verbs(verbs)
 end

@@ -27,8 +27,8 @@ bottom of this page.
 
 <!-- Result till here -->
 
-| [Latency](latency.md) | [Throughput](throughput.md) |
-| --------------------- | --------------------------- |
+| [Latency](latency.md) | [Throughput](throughput.md) | [Verbosity](verbosity.md) |
+| --------------------- | --------------------------- | ------------------------- |
 
 ## Requirements
 

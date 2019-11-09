@@ -363,7 +363,7 @@ def update_latency(lats)
   add_links(out)
   out.puts()
   out.puts('### Latency')
-$out.puts('| Language | Framework | Mean Latency (msecs) | Average Latency (msecs) | 90th % (msecs) | 99th % (msecs) | Standard Deviation | Req/sec | Verbosity |')
+  out.puts('| Language | Framework | Mean Latency (msecs) | Average Latency (msecs) | 90th % (msecs) | 99th % (msecs) | StdDev | Req/sec | Verbosity |')
   out.puts('| ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| -----------------:| ------------------:| ------:| ------:|')
   lats.each { |t|
     out.puts("| %s (%s) | [%s](%s) (%s) | **%.3f** | %.3f | %.3f | %.3f | %.2f | %d | %d |" %
@@ -407,7 +407,7 @@ def update_verbs(verbs)
   out.puts('| Language | Framework | Requests/second | Latency (msecs) | Verbosity |')
   out.puts('| -------------------| ---------------------- | -------------------:| ------:| -----:|')
   verbs.each { |t|
-    out.puts("| %s (%s) | [%s](%s) (%s) | %d | %.3f ms | **%d** |" %
+    out.puts("| %s (%s) | [%s](%s) (%s) | %d | %.3f | **%d** |" %
 	     [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.latency_mean, t.verbosity])
   }
 

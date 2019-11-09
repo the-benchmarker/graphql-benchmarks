@@ -15,7 +15,7 @@
 ### Verbosity (lines of code)
 | Language | Framework | Requests/second | Latency (msecs) | Verbosity |
 | -------------------| ---------------------- | -------------------:| ------:| -----:|
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.11.3) | 176891 | 0.029 ms | **107** |
-| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.7.2) | 435769 | 0.029 ms | **345** |
-| go (1.13) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | 30833 | 0.083 ms | **392** |
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.11.3) | 175276 | 0.028 | **107** |
+| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.7.2) | 434214 | 0.029 | **345** |
+| go (1.13) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | 30869 | 0.084 | **392** |
 <!-- Result till here -->

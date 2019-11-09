@@ -15,7 +15,7 @@
 ### Rate (requests per second)
 | Language | Framework | Requests/second | Throughput (MB/sec) | Latency (msecs) | Verbosity |
 | -------------------| ---------------------- | ---------------:| -------------------:| ------:| -----:|
-| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.7.2) | **435769** | 43.95 | 0.029 | 345 |
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.11.3) | **176891** | 17.80 | 0.029 | 107 |
-| go (1.13) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | **30833** | 4.45 | 0.083 | 392 |
+| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.7.2) | **434214** | 43.80 | 0.029 | 345 |
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.11.3) | **175276** | 17.65 | 0.028 | 107 |
+| go (1.13) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | **30869** | 4.45 | 0.084 | 392 |
 <!-- Result till here -->

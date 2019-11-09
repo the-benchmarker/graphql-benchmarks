@@ -345,7 +345,6 @@ def add_header(out, label)
     out.puts('| Language | Framework(version) | Mean Latency | Average Latency | 90th % | 99th % | Std Dev | Rate | Verbosity |')
     out.puts('| -------- | ------------------ | ------------:| ---------------:| ------:| ------:| -------:| ----:| ---------:|')
   end
-  out.puts()
 end
 
 def replace_content(content, result)

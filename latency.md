@@ -19,8 +19,7 @@
 ### Latency
 | Language | Framework(version) | Mean Latency | Average Latency | 90th % | 99th % | Std Dev | Rate | Verbosity |
 | -------- | ------------------ | ------------:| ---------------:| ------:| ------:| -------:| ----:| ---------:|
-
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.11.3) | 165459 | **0.028** | 0.186 | 0.611 | 2.019 | 0.46 | 98 |
-| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.7.2) | 414785 | **0.029** | 0.056 | 0.173 | 0.184 | 0.07 | 320 |
-| go (1.13) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | 30780 | **0.085** | 0.083 | 0.090 | 0.108 | 0.03 | 385 |
+| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.7.2) | 435695 | **0.028** | 0.058 | 0.175 | 0.184 | 0.08 | 320 |
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.11.3) | 157721 | **0.030** | 0.123 | 0.196 | 1.159 | 0.30 | 98 |
+| go (1.13) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | 30817 | **0.085** | 0.083 | 0.091 | 0.107 | 0.02 | 385 |
 <!-- Result till here -->

@@ -11,13 +11,13 @@ require 'agoo'
 # APIs. Most real world applications will use an external store, multiple
 # workers would make more sense this benchmark test. Flip the flag to change
 # the test.
-if false # true for multiple workers, false for a single worker
-  worker_count = Etc.nprocessors() / 3
-  worker_count = 1 if worker_count < 1
-  Agoo::Server.init(3000, '.', thread_count: 2, worker_count: worker_count, graphql: '/graphql', poll_timeout: 0.1)
-else
-  Agoo::Server.init(3000, '.', thread_count: 2, worker_count: 1, graphql: '/graphql', poll_timeout: 0.01)
-end
+
+# Uncomment for multiple workers and then comment out the following init call.
+#worker_count = Etc.nprocessors() / 3
+#worker_count = 1 if worker_count < 1
+#Agoo::Server.init(3000, '.', thread_count: 2, worker_count: worker_count, graphql: '/graphql', poll_timeout: 0.1)
+
+Agoo::Server.init(3000, '.', thread_count: 2, worker_count: 1, graphql: '/graphql', poll_timeout: 0.01)
 
 # Empty response.
 class Empty
@@ -96,9 +96,7 @@ class Mutation
       if an == a.name
 	a.songs.each { |s|
 	  if s.name == sn
-	    @lock.synchronize {
-	      s.likes += 1
-	    }
+	    @lock.synchronize { s.likes += 1 }
 	    return s
 	  end
 	}

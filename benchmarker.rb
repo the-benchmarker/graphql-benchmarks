@@ -311,9 +311,16 @@ def show_results(lats, rates, verbs)
   puts "\x1b[1mLatency\x1b[m"
   puts "\x1b[4mLanguage            \x1b[m  \x1b[4mFramework           \x1b[m  \x1b[4m      Rate\x1b[m  \x1b[4m   \x1b[1mLatency\x1b[m  \x1b[4m Verbosity\x1b[m  \x1b[4m   Average\x1b[m  \x1b[4m    90th %\x1b[m  \x1b[4m    99th %\x1b[m  \x1b[4m   Std Dev\x1b[m"
   rates.each { |t|
-    puts "%-20s  %-20s  %10d  \x1b[1m%10.3f\x1b[m  %10d  %10.2f" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.latency_mean, t.verbosity, t.latency_average, t.latency_90, t.latency_99, t.latency_stdev]
+    puts "%-20s  %-20s  %10d  \x1b[1m%10.3f\x1b[m  %10d  %10.3f  %10.3f  %10.3f  %10.2f" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.latency_mean, t.verbosity, t.latency_average, t.latency_90, t.latency_99, t.latency_stdev]
   }
   puts
+  puts "\x1b[1mVerbosity\x1b[m"
+  puts "\x1b[4mLanguage            \x1b[m  \x1b[4mFramework           \x1b[m  \x1b[4m      Rate\x1b[m  \x1b[4m   Latency\x1b[m  \x1b[4m \x1b[1mVerbosity\x1b[m"
+  rates.each { |t|
+    puts "%-20s  %-20s  %10d  %10.3f  \x1b[1m%10d\x1b[m" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.latency_mean, t.verbosity]
+  }
+  puts
+
 end
 
 def add_header(out, label)
@@ -328,14 +335,17 @@ def add_header(out, label)
     out.puts("  - _Rates_ are in requests per second.")
     out.puts("  - _Latency_ is in milliseconds.")
     out.puts("  - _Verbosity_ is the number of non-blank lines of code excluding comments.")
+  end
     out.puts()
     out.puts("| [Rate](rates.md) | [Latency](latency.md) | [Verbosity](verbosity.md) | [README](README.md) |")
     out.puts("| ---------------- | --------------------- | ------------------------- | ------------------- |")
+  unless label.nil?
     out.puts()
     out.puts("### #{label}")
     out.puts('| Language | Framework(version) | Mean Latency | Average Latency | 90th % | 99th % | Std Dev | Rate | Verbosity |')
     out.puts('| -------- | ------------------ | ------------:| ---------------:| ------:| ------:| -------:| ----:| ---------:|')
   end
+  out.puts()
 end
 
 def replace_content(content, result)

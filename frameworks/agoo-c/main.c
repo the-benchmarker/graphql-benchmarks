@@ -77,8 +77,7 @@ static struct _song	fazerdaze_songs[] = {
     {.name = "Lucky Girl", .artist = NULL, .duration = 170, .release = {2017, 5, 5}},
     {.name = "Friends", .artist = NULL, .duration = 194, .release = {2017, 5, 5}},
     {.name = "Reel", .artist = NULL, .duration = 193, .release = {2015, 11, 2}},
-    {.name = NULL },
-};
+    {.name = NULL }};
 
 static const char	*stockholm[] = {"Stockholm", "Sweden", NULL};
 static struct _song	boys_songs[] = {
@@ -86,22 +85,15 @@ static struct _song	boys_songs[] = {
     {.name = "Frogstrap", .artist = NULL, .duration = 195, .release = {2018, 9, 28}},
     {.name = "Worms", .artist = NULL, .duration = 208, .release = {2018, 9, 28}},
     {.name = "Amphetanarchy", .artist = NULL, .duration = 346, .release = {2018, 9, 28}},
-    {.name = NULL },
-};
+    {.name = NULL }};
 
 static struct _artist	artists[] = {
     {.name = "Fazerdaze", .origin = morningside, .songs = fazerdaze_songs},
     {.name = "Viagra Boys", .origin = stockholm, .songs = boys_songs},
-    {.name = NULL },
-};
+    {.name = NULL }};
 
-static struct _query	data = {
-    .artists = artists,
-};
-
-static struct _mutation	moo = {
-    .q = &data,
-};
+static struct _query	data = {.artists = artists};
+static struct _mutation	moo = {.q = &data};
 
 ///// C hookups
 
@@ -163,18 +155,14 @@ song_release(agooErr err, gqlDoc doc, gqlCobj obj, gqlField field, gqlSel sel, g
 }
 
 static struct _gqlCmethod	song_methods[] = {
-    { .key = "name",      .func = song_name },
-    { .key = "artist",   .func = song_artist },
-    { .key = "duration", .func = song_duration },
-    { .key = "release",  .func = song_release },
-    { .key = "likes",    .func = song_likes },
-    { .key = NULL,       .func = NULL },
-};
+    {.key = "name",     .func = song_name},
+    {.key = "artist",   .func = song_artist},
+    {.key = "duration", .func = song_duration},
+    {.key = "release",  .func = song_release},
+    {.key = "likes",    .func = song_likes},
+    {.key = NULL,       .func = NULL}};
 
-static struct _gqlCclass	song_class = {
-    .name = "Song",
-    .methods = song_methods,
-};
+static struct _gqlCclass	song_class = {.name = "Song", .methods = song_methods};
 
 static int
 artist_name(agooErr err, gqlDoc doc, gqlCobj obj, gqlField field, gqlSel sel, gqlValue result, int depth) {
@@ -231,16 +219,12 @@ artist_origin(agooErr err, gqlDoc doc, gqlCobj obj, gqlField field, gqlSel sel, 
 }
 
 static struct _gqlCmethod	artist_methods[] = {
-    { .key = "name",   .func = artist_name },
-    { .key = "songs",  .func = artist_songs },
-    { .key = "origin", .func = artist_origin },
-    { .key = NULL,     .func = NULL },
-};
+    {.key = "name",   .func = artist_name},
+    {.key = "songs",  .func = artist_songs},
+    {.key = "origin", .func = artist_origin},
+    {.key = NULL,     .func = NULL}};
 
-static struct _gqlCclass	artist_class = {
-    .name = "Artist",
-    .methods = artist_methods,
-};
+static struct _gqlCclass	artist_class = {.name = "Artist", .methods = artist_methods};
 
 static int
 query_artist(agooErr err, gqlDoc doc, gqlCobj obj, gqlField field, gqlSel sel, gqlValue result, int depth) {
@@ -307,26 +291,17 @@ query_artists(agooErr err, gqlDoc doc, gqlCobj obj, gqlField field, gqlSel sel, 
 }
 
 static struct _gqlCmethod	query_methods[] = {
-    { .key = "artist",  .func = query_artist },
-    { .key = "artists", .func = query_artists },
-    { .key = NULL,      .func = NULL },
-};
+    {.key = "artist",  .func = query_artist},
+    {.key = "artists", .func = query_artists},
+    {.key = NULL,      .func = NULL}};
 
-static struct _gqlCclass	query_class = {
-    .name = "query",
-    .methods = query_methods,
-};
-
-static struct _gqlCobj	query_obj = {
-    .clas = &query_class,
-    .ptr = &data,
-};
-
+static struct _gqlCclass	query_class = {.name = "query", .methods = query_methods};
+static struct _gqlCobj	query_obj = {.clas = &query_class, .ptr = &data};
 
 ///// Mutation type setup
 
 static int
-mutation_like(agooErr err, gqlDoc doc, gqlCobj obj, gqlField field, gqlSel sel, gqlValue result, int depth) {
+mu_like(agooErr err, gqlDoc doc, gqlCobj obj, gqlField field, gqlSel sel, gqlValue result, int depth) {
     Mutation	m = (Mutation)obj->ptr;
     const char	*key = sel->name;
     gqlValue	nv;
@@ -364,20 +339,12 @@ mutation_like(agooErr err, gqlDoc doc, gqlCobj obj, gqlField field, gqlSel sel, 
     return gql_eval_sels(err, doc, (gqlRef)&child, field, sel->sels, co, depth + 1);
 }
 
-static struct _gqlCmethod	mutation_methods[] = {
-    { .key = "like", .func = mutation_like },
-    { .key = NULL,     .func = NULL },
-};
+static struct _gqlCmethod	mu_methods[] = {
+    {.key = "like", .func = mu_like},
+    {.key = NULL,     .func = NULL}};
 
-static struct _gqlCclass	mutation_class = {
-    .name = "mutation",
-    .methods = mutation_methods,
-};
-
-static struct _gqlCobj	mutation_obj = {
-    .clas = &mutation_class,
-    .ptr = &moo,
-};
+static struct _gqlCclass	mu_class = { .name = "mutation", .methods = mu_methods};
+static struct _gqlCobj		mu_obj = { .clas = &mu_class, .ptr = &moo };
 
 int
 main(int argc, char **argv) {
@@ -400,7 +367,7 @@ main(int argc, char **argv) {
 	return err.code;
     }
     agoo_query_object = &query_obj;
-    agoo_mutation_object = &mutation_obj;
+    agoo_mutation_object = &mu_obj;
 
     // set up hooks or routes
     if (AGOO_ERR_OK != agoo_add_func_hook(&err, AGOO_GET, "/", empty_handler, true)) {

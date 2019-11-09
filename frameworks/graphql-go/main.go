@@ -209,7 +209,7 @@ func handleGraphQL(w http.ResponseWriter, req *http.Request, schema graphql.Sche
 		defer req.Body.Close()
 		body, err := ioutil.ReadAll(req.Body)
 		if err != nil {
-			json.NewEncoder(w).Encode(err.Error())
+			_ = json.NewEncoder(w).Encode(err.Error())
 			return
 		}
 		result = graphql.Do(graphql.Params{
@@ -217,7 +217,7 @@ func handleGraphQL(w http.ResponseWriter, req *http.Request, schema graphql.Sche
 			RequestString: string(body),
 		})
 	}
-	json.NewEncoder(w).Encode(result)
+	_ = json.NewEncoder(w).Encode(result)
 }
 
 // graphql-go does not use functions on struct but just a function. The names
@@ -234,14 +234,6 @@ func QueryArtist(params graphql.ResolveParams) (interface{}, error) {
 		return nil, fmt.Errorf("Schema.query resolve failed (%T)", params.Source)
 	}
 	return q.Artists.GetByName(name), nil
-}
-
-func QueryArtists(params graphql.ResolveParams) (interface{}, error) {
-	q, ok := params.Source.(*Query)
-	if !ok {
-		return nil, fmt.Errorf("Schema.query resolve failed XX (%T)", params.Source)
-	}
-	return q.Artists, nil
 }
 
 func ArtistName(params graphql.ResolveParams) (interface{}, error) {

@@ -440,6 +440,18 @@ func buildSchema(data *Schema) (graphql.Schema, error) {
 				Type:    graphql.NewList(artistType),
 				Resolve: data.Query.ArtistsGG,
 			},
+			"defineFloat": &graphql.Field{
+				Type:    graphql.Float,
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					return 1.23, nil
+				},
+			},
+			"defineID": &graphql.Field{
+				Type:    graphql.ID,
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					return "id", nil
+				},
+			},
 		},
 	})
 

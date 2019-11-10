@@ -1,6 +1,6 @@
 name: agoo-c
 website: github.com/ohler55/agoo-c
-version: "0.7.2"
+version: "0.7.3"
 language: "c"
 language-version: "11"
 bench-adjust: 0.5

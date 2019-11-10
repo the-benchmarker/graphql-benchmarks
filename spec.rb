@@ -83,7 +83,7 @@ end
 
 root = File.expand_path('../frameworks', __FILE__)
 
-$query = '/graphql?query={artists{name,origin,songs{name,duration,likes}},__schema{types{name,fields{name}}}}'
+$query = '/graphql?query={artists{name,origin,songs{name,duration,likes}},__schema{types{name,kind,fields{name}}}}'
 
 def check_tree(path, exp, act)
   case exp
@@ -113,6 +113,12 @@ def check_tree(path, exp, act)
 	}
       else
 	exp.each_with_index { |v,i| check_tree("#{path}.#{i}", v, act[i]) }
+      end
+    end
+  when String
+    describe "value at #{path} should be #{exp}" do
+      it "should match" do
+	expect(act.strip).to eq exp
       end
     end
   else
@@ -156,9 +162,7 @@ $expect_result = {
 	  ]
 	},
 	{name: 'Int'},
-	{name: 'I64'},
 	{name: '__DirectiveLocation'},
-	{name: 'Time'},
 	{name: '__Schema',
 	 fields: [
 	   {name: 'types'},
@@ -174,14 +178,7 @@ $expect_result = {
          ]
         },
         {name: 'Date'},
-        {name: 'Uuid'},
         {name: 'Boolean'},
-        {name: 'schema',
-	 fields: [
-           {name: 'query'},
-           {name: 'mutation'}
-         ]
-        },
         {name: 'String'},
         {name: 'Song',
          fields: [
@@ -215,7 +212,7 @@ $expect_result = {
            {name: 'args'},
            {name: 'type'},
            {name: 'isDeprecated'},
-           {name: 'reason'}
+           {name: 'deprecationReason'}
          ]
         },
         {name: '__TypeKind'},
@@ -280,7 +277,7 @@ def run_test(base, client)
 	expect(res.code).to eq '200'
       end
       it %|should return {"data":{"like":{"likes":#{i+1}}}}| do
-	expect(res.body).to eq %|{"data":{"like":{"likes":#{i+1}}}}|
+	expect(res.body.strip).to eq %|{"data":{"like":{"likes":#{i+1}}}}|
       end
     }
   end

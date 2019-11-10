@@ -81,18 +81,18 @@ class Target
   end
 
   def table_args
-    [t.lang,
-     t.langver,
-     t.name,
-     t.link,
-     t.version,
-     t.rate.to_i,
-     t.latency_mean,
-     t.latency_average,
-     t.latency_90,
-     t.latency_99,
-     t.latency_stdev,
-     t.verbosity]
+    [lang,
+     langver,
+     name,
+     link,
+     version,
+     rate.to_i,
+     latency_mean,
+     latency_average,
+     latency_90,
+     latency_99,
+     latency_stdev,
+     verbosity]
   end
 
   def add_latency(average, mean, stdev, l90, l99, l999)
@@ -264,13 +264,13 @@ def show_results(lats, rates, verbs)
   puts
   puts "\x1b[1mLatency\x1b[m"
   puts "\x1b[4mLanguage            \x1b[m  \x1b[4mFramework           \x1b[m  \x1b[4m      Rate\x1b[m  \x1b[4m   \x1b[1mLatency\x1b[m  \x1b[4m Verbosity\x1b[m  \x1b[4m   Average\x1b[m  \x1b[4m    90th %\x1b[m  \x1b[4m    99th %\x1b[m  \x1b[4m   Std Dev\x1b[m"
-  rates.each { |t|
+  lats.each { |t|
     puts "%-20s  %-20s  %10d  \x1b[1m%10.3f\x1b[m  %10d  %10.3f  %10.3f  %10.3f  %10.2f" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.latency_mean, t.verbosity, t.latency_average, t.latency_90, t.latency_99, t.latency_stdev]
   }
   puts
   puts "\x1b[1mVerbosity\x1b[m"
   puts "\x1b[4mLanguage            \x1b[m  \x1b[4mFramework           \x1b[m  \x1b[4m      Rate\x1b[m  \x1b[4m   Latency\x1b[m  \x1b[4m \x1b[1mVerbosity\x1b[m"
-  rates.each { |t|
+  verbs.each { |t|
     puts "%-20s  %-20s  %10d  %10.3f  \x1b[1m%10d\x1b[m" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.latency_mean, t.verbosity]
   }
   puts

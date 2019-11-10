@@ -11,6 +11,13 @@ $connections = 1000
 $threads = Etc.nprocessors() / 3
 $duration = 20
 $record = false
+$targets = []
+$languages = {}
+$root = File.expand_path('../frameworks', __FILE__)
+$emojis = [ 'one', 'two', 'three', 'four', 'five' ]
+$lats = []
+$rates = []
+$verbs = []
 
 opts = OptionParser.new(%{Usage: benchmarker.rb [options] <target>...
 
@@ -25,8 +32,6 @@ opts.on('-r', '--record', 'record to README.md')                         { $reco
 opts.on('-h', '--help', 'Show this display')                             { puts opts.help; Process.exit!(0) }
 
 $target_names = opts.parse(ARGV)
-$languages = {}
-$root = File.expand_path('../frameworks', __FILE__)
 
 # Serves as the collector of results and description of a target.
 class Target
@@ -73,6 +78,21 @@ class Target
 
   def to_s
     "Target{ lang: #{@lang} name: #{@name} version: #{@version} link: #{@link} duration: #{@duration} requests: #{@requests} }"
+  end
+
+  def table_args
+    [t.lang,
+     t.langver,
+     t.name,
+     t.link,
+     t.version,
+     t.rate.to_i,
+     t.latency_mean,
+     t.latency_average,
+     t.latency_90,
+     t.latency_99,
+     t.latency_stdev,
+     t.verbosity]
   end
 
   def add_latency(average, mean, stdev, l90, l99, l999)
@@ -145,21 +165,6 @@ class Target
 
 end
 
-### Collect the frameworks ########################################################
-
-$targets = []
-
-Dir.glob($root + '/*').each { |dir|
-  base = File.basename(dir)
-  info = YAML.load(File.read(dir + "/info.yml"))
-  next if !$all && info['experimental']
-  if $target_names.nil? || 0 == $target_names.size || $target_names.include?(info['name']) || $target_names.include?(info['language'])
-    $targets << Target.new(info)
-  end
-}
-
-### Running the benchmarks ####################################################
-
 def benchmark(target, ip)
   thread_count = ($threads * target.adjust).to_i
   thread_count = 1 if 1 > thread_count
@@ -227,58 +232,7 @@ def benchmark(target, ip)
   [target.rate, target.latency_mean]
 end
 
-$targets.each { |target|
-  begin
-    target.verbosity = target.count_lines
-
-    puts "#{target.name}" if 1 < $verbose
-    cid = `docker run -td #{target.name}`.strip
-    remote_ip = nil
-    # Dual purpose, get the IP address in the container for the server and
-    # detect when the container is available. That avoids using a simple sleep
-    # which sets up a race condition.
-    20.times do
-      remote_ip = `docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' #{cid}`.strip
-      break if nil != remote_ip && 0 < remote_ip.size()
-      sleep 1
-    end
-    raise StandardError.new("failed to start docker for #{target.name}") if remote_ip.nil? || remote_ip.empty?
-    puts "Docker container for #{target.name} is #{cid} at #{remote_ip}." if 2 < $verbose
-
-    # Wait for the server in the container to be up and responsive before
-    # continuing using the same technique of avoiding a race condition.
-    error = nil
-    20.times do
-      begin
-	uri = URI("http://#{remote_ip}:3000")
-	content = Net::HTTP.get(uri)
-	error = nil
-	break if nil != content
-      rescue Exception => e
-	error = e
-	sleep 1
-      end
-    end
-    raise error unless error.nil?
-    puts "Server on #{target.name} has responded." if 2 < $verbose
-
-    sleep 2
-
-    benchmark(target, remote_ip)
-    puts "  Benchmarks for #{target.name} - rate: #{target.rate.to_i} req/sec  latency: #{target.latency_mean.round(2)} ms." if 1 < $verbose
-  ensure
-    puts "Stopping Docker container #{cid} for #{target.name}." if 2 < $verbose
-    `docker stop #{cid}`
-  end
-}
-
 ### Display results ###########################################################
-
-$emojis = [ 'one', 'two', 'three', 'four', 'five' ]
-
-lats = $targets.sort{ |ta, tb| ta.latency_mean <=> tb.latency_mean }
-rates = $targets.sort{ |ta, tb| tb.rate <=> ta.rate }
-verbs = $targets.sort{ |ta, tb| ta.verbosity <=> tb.verbosity }
 
 def show_results(lats, rates, verbs)
   puts
@@ -320,7 +274,6 @@ def show_results(lats, rates, verbs)
     puts "%-20s  %-20s  %10d  %10.3f  \x1b[1m%10d\x1b[m" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.latency_mean, t.verbosity]
   }
   puts
-
 end
 
 def add_header(out, label)
@@ -346,6 +299,7 @@ def add_header(out, label)
     out.puts('| -------- | ------------------ | ------------:| ---------------:| ------:| ------:| -------:| ----:| ---------:|')
   end
 end
+
 
 def replace_content(content, result)
   content.gsub!(/\<!--\sResult\sfrom\shere\s-->[\s\S]*?<!--\sResult\still\shere\s-->/,
@@ -379,8 +333,7 @@ def update_latency(lats)
   out.puts()
   add_header(out, 'Latency')
   lats.each { |t|
-    out.puts("| %s (%s) | [%s](%s) (%s) | %d | **%.3f** | %.3f | %.3f | %.3f | %.2f | %d |" %
-	     [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.latency_mean, t.latency_average, t.latency_90, t.latency_99, t.latency_stdev, t.verbosity])
+    out.puts("| %s (%s) | [%s](%s) (%s) | %d | **%.3f** | %.3f | %.3f | %.3f | %.2f | %d |" % t.table_args)
   }
   path = File.expand_path('../latency.md', __FILE__)
   content = File.read(path)
@@ -393,10 +346,8 @@ def update_rates(rates)
   out.puts()
   add_header(out, 'Rate')
   rates.each { |t|
-    out.puts("| %s (%s) | [%s](%s) (%s) | **%d** | %.3f | %.3f | %.3f | %.3f | %.2f | %d |" %
-	     [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.latency_mean, t.latency_average, t.latency_90, t.latency_99, t.latency_stdev, t.verbosity])
+    out.puts("| %s (%s) | [%s](%s) (%s) | **%d** | %.3f | %.3f | %.3f | %.3f | %.2f | %d |" % t.table_args)
   }
-
   path = File.expand_path('../rates.md', __FILE__)
   content = File.read(path)
   replace_content(content, out.string)
@@ -408,21 +359,80 @@ def update_verbs(verbs)
   out.puts()
   add_header(out, 'Verbosity')
   verbs.each { |t|
-    out.puts("| %s (%s) | [%s](%s) (%s) | %d | %.3f | %.3f | %.3f | %.3f | %.2f | **%d** |" %
-	     [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.latency_mean, t.latency_average, t.latency_90, t.latency_99, t.latency_stdev, t.verbosity])
+    out.puts("| %s (%s) | [%s](%s) (%s) | %d | %.3f | %.3f | %.3f | %.3f | %.2f | **%d** |" % t.table_args)
   }
-
   path = File.expand_path('../verbosity.md', __FILE__)
   content = File.read(path)
   replace_content(content, out.string)
   File.write(path, content)
 end
 
-show_results(lats, rates, verbs)
+### Collect the frameworks and run them #######################################
+
+Dir.glob($root + '/*').each { |dir|
+  base = File.basename(dir)
+  info = YAML.load(File.read(dir + "/info.yml"))
+  next if !$all && info['experimental']
+  if $target_names.nil? || 0 == $target_names.size || $target_names.include?(info['name']) || $target_names.include?(info['language'])
+    $targets << Target.new(info)
+  end
+}
+
+$targets.each { |target|
+  begin
+    target.verbosity = target.count_lines
+
+    puts "#{target.name}" if 1 < $verbose
+    cid = `docker run -td #{target.name}`.strip
+    remote_ip = nil
+    # Dual purpose, get the IP address in the container for the server and
+    # detect when the container is available. That avoids using a simple sleep
+    # which sets up a race condition.
+    20.times do
+      remote_ip = `docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' #{cid}`.strip
+      break if nil != remote_ip && 0 < remote_ip.size()
+      sleep 1
+    end
+    raise StandardError.new("failed to start docker for #{target.name}") if remote_ip.nil? || remote_ip.empty?
+    puts "Docker container for #{target.name} is #{cid} at #{remote_ip}." if 2 < $verbose
+
+    # Wait for the server in the container to be up and responsive before
+    # continuing using the same technique of avoiding a race condition.
+    error = nil
+    20.times do
+      begin
+	uri = URI("http://#{remote_ip}:3000")
+	content = Net::HTTP.get(uri)
+	error = nil
+	break if nil != content
+      rescue Exception => e
+	error = e
+	sleep 1
+      end
+    end
+    raise error unless error.nil?
+    puts "Server on #{target.name} has responded." if 2 < $verbose
+
+    sleep 2 # Be nice and let the app really get ready if it needs more time (some do)
+
+    benchmark(target, remote_ip)
+    puts "  Benchmarks for #{target.name} - rate: #{target.rate.to_i} req/sec  latency: #{target.latency_mean.round(2)} ms." if 1 < $verbose
+  ensure
+    puts "Stopping Docker container #{cid} for #{target.name}." if 2 < $verbose
+    `docker stop #{cid}`
+  end
+}
+
+$lats = $targets.sort{ |ta, tb| ta.latency_mean <=> tb.latency_mean }
+$rates = $targets.sort{ |ta, tb| tb.rate <=> ta.rate }
+$verbs = $targets.sort{ |ta, tb| ta.verbosity <=> tb.verbosity }
+
+## display results
+show_results($lats, $rates, $verbs)
 
 if $record
-  update_readme(lats, rates, verbs)
-  update_latency(lats)
-  update_rates(rates)
-  update_verbs(verbs)
+  update_readme($lats, $rates, $verbs)
+  update_latency($lats)
+  update_rates($rates)
+  update_verbs($verbs)
 end

@@ -25,6 +25,7 @@ Dir.glob(root + '/*').each { |dir|
   next if !$all && info['experimental']
   if $targets.nil? || 0 == $targets.size || $targets.include?(info['name']) || $targets.include?(info['language'])
     Dir.chdir(dir) {
+      puts "running: docker build -t #{base} ." if 2 <= $verbose
       out = `docker build -t #{base} .`
       if 0 != $?.exitstatus
 	puts "*-*-* Docker build for #{base} failed."

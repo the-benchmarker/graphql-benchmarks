@@ -89,6 +89,7 @@ starting.
 The `info.yml` file should must have these fields but with the values
 in between the `<` and `>` replaced with appropriate values.
 
+```yaml
 name: <frameowrk name>
 website: <github.com/<account>/<framework>
 version: <version>
@@ -98,6 +99,7 @@ bench-adjust: 0.5
 experimental: false
 post-format: graphql
 code: <source files separated by commas>
+```
 
 The bench-adjust value default to 1.0. Experiment with it. 0.5 works
 well for most frameworks.

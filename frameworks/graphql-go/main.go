@@ -23,7 +23,7 @@ func setupSongs() *Schema {
 	fazerdaze := Artist{Name: "Fazerdaze", Origin: []string{"Morningside", "Auckland", "New Zealand"}}
 	may5 := &Date{Year: 2017, Month: 5, Day: 5}
 	nov2 := &Date{Year: 2015, Month: 11, Day: 2}
-	fazerdaze.Songs = SongList{
+	fazerdaze.Songs = []*Song{
 		{Name: "Jennifer", Artist: &fazerdaze, Duration: 240, Release: may5},
 		{Name: "Lucky Girl", Artist: &fazerdaze, Duration: 170, Release: may5},
 		{Name: "Friends", Artist: &fazerdaze, Duration: 194, Release: may5},
@@ -32,7 +32,7 @@ func setupSongs() *Schema {
 
 	boys := Artist{Name: "Viagra Boys", Origin: []string{"Stockholm", "Sweden"}}
 	sep28 := &Date{Year: 2018, Month: 11, Day: 2}
-	boys.Songs = SongList{
+	boys.Songs = []*Song{
 		{Name: "Down In The Basement", Artist: &boys, Duration: 216, Release: sep28},
 		{Name: "Frogstrap", Artist: &boys, Duration: 195, Release: sep28},
 		{Name: "Worms", Artist: &boys, Duration: 208, Release: sep28},
@@ -40,8 +40,7 @@ func setupSongs() *Schema {
 	}
 
 	query := Query{
-		Title:   "Songs",
-		Artists: ArtistList{&fazerdaze, &boys},
+		Artists: []*Artist{&fazerdaze, &boys},
 	}
 	return &Schema{
 		Query:    &query,
@@ -57,8 +56,17 @@ type Schema struct {
 
 // Query represents the query node in a data/resolver graph.
 type Query struct {
-	Title   string
-	Artists ArtistList
+	Artists []*Artist
+}
+
+// Artist returns the artist in the list with the specified name.
+func (q *Query) Artist(name string) *Artist {
+	for _, a := range q.Artists {
+		if a.Name == name {
+			return a
+		}
+	}
+	return nil
 }
 
 // Mutation represents the query node in a data/resolver graph.
@@ -68,8 +76,8 @@ type Mutation struct {
 
 // Like increments likes attribute the song of the artist specified.
 func (m *Mutation) Like(artist, song string) *Song {
-	if a := m.query.Artists.GetByName(artist); a != nil {
-		if s := a.Songs.GetByName(song); s != nil {
+	if a := m.query.Artist(artist); a != nil {
+		if s := a.Song(song); s != nil {
 			s.Likes++
 			return s
 		}
@@ -77,16 +85,21 @@ func (m *Mutation) Like(artist, song string) *Song {
 	return nil
 }
 
-// Artist returns the artist in the list with the specified name.
-func (q *Query) Artist(name string) *Artist {
-	return q.Artists.GetByName(name)
-}
-
 // Artist represents the GraphQL Artist.
 type Artist struct {
 	Name   string
-	Songs  SongList
+	Songs  []*Song
 	Origin []string
+}
+
+// Artist returns the artist in the list with the specified name.
+func (a *Artist) Song(name string) *Song {
+	for _, s := range a.Songs {
+		if s.Name == name {
+			return s
+		}
+	}
+	return nil
 }
 
 // Song represents the GraphQL Song.
@@ -98,54 +111,6 @@ type Song struct {
 	Likes    int
 }
 
-// ArtistList is a list of Artists. It exists to allow list members to be
-// ordered but still implement map like behavionr (not yet implemented).
-type ArtistList []*Artist
-
-// Len of the list.
-func (al ArtistList) Len() int {
-	return len(al)
-}
-
-// Nth element in the list.
-func (al ArtistList) Nth(i int) interface{} {
-	return al[i]
-}
-
-// GetByName retrieves the element with the specified name.
-func (al ArtistList) GetByName(name string) *Artist {
-	for _, a := range al {
-		if a.Name == name {
-			return a
-		}
-	}
-	return nil
-}
-
-// SongList is a list of Songs. It exists to allow list members to be
-// ordered but still implement map like behavionr (not yet implemented).
-type SongList []*Song
-
-// Len of the list.
-func (sl SongList) Len() int {
-	return len(sl)
-}
-
-// Nth element in the list.
-func (sl SongList) Nth(i int) interface{} {
-	return sl[i]
-}
-
-// GetByName retrieves the element with the specified name.
-func (sl SongList) GetByName(name string) *Song {
-	for _, s := range sl {
-		if s.Name == name {
-			return s
-		}
-	}
-	return nil
-}
-
 // Date represents a date with year, month, and day of the month.
 type Date struct {
 	Year  int
@@ -153,7 +118,7 @@ type Date struct {
 	Day   int
 }
 
-// DateFromString parses a string in the format YYY-MM-DD into a Date
+// DateFromString parses a string in the format YYYY-MM-DD into a Date
 // instance.
 func DateFromString(s string) (d *Date, err error) {
 	d = &Date{}
@@ -233,7 +198,7 @@ func QueryArtist(params graphql.ResolveParams) (interface{}, error) {
 	if q, ok = params.Source.(*Query); !ok {
 		return nil, fmt.Errorf("Schema.query resolve failed (%T)", params.Source)
 	}
-	return q.Artists.GetByName(name), nil
+	return q.Artist(name), nil
 }
 
 func ArtistName(params graphql.ResolveParams) (interface{}, error) {
@@ -254,7 +219,7 @@ func ArtistSong(params graphql.ResolveParams) (interface{}, error) {
 	if a, ok = params.Source.(*Artist); !ok {
 		return nil, fmt.Errorf("Query.artist resolve failed (%T)", params.Source)
 	}
-	return a.Songs.GetByName(name), nil
+	return a.Song(name), nil
 }
 
 func ArtistSongs(params graphql.ResolveParams) (interface{}, error) {
@@ -441,13 +406,13 @@ func buildSchema(data *Schema) (graphql.Schema, error) {
 				Resolve: data.Query.ArtistsGG,
 			},
 			"defineFloat": &graphql.Field{
-				Type:    graphql.Float,
+				Type: graphql.Float,
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					return 1.23, nil
 				},
 			},
 			"defineID": &graphql.Field{
-				Type:    graphql.ID,
+				Type: graphql.ID,
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 					return "id", nil
 				},

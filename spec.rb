@@ -68,6 +68,10 @@ class TestClient < GetPoster
     `docker stop #{@cid}`unless @cid.nil?
   end
 
+  def logs
+    puts `docker logs #{@cid}`unless @cid.nil?
+  end
+
 end
 
 $local = nil
@@ -86,6 +90,15 @@ root = File.expand_path('../frameworks', __FILE__)
 $query = '/graphql?query={artists{name,origin,songs{name,duration,likes}},__schema{types{name,kind,fields{name}}}}'
 
 def check_tree(path, exp, act)
+  if act.nil? && !exp.nil?
+    describe "value at #{path} should be #{exp}, not nil" do
+      it "should match" do
+	expect(act).to eq exp
+      end
+    end
+    return
+  end
+
   case exp
   when Hash
     exp.each { |k,v| check_tree("#{path}.#{k}", v, act[k]) }
@@ -292,6 +305,7 @@ if $local.nil?
 	tc = TestClient.new(base)
 	run_test(base, tc)
       ensure
+	tc.logs if ENV["VERBOSE"] == 'true'
 	tc.stop
       end
     end

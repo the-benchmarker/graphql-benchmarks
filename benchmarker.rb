@@ -11,6 +11,13 @@ $connections = 1000
 $threads = Etc.nprocessors() / 3
 $duration = 20
 $record = false
+$targets = []
+$languages = {}
+$root = File.expand_path('../frameworks', __FILE__)
+$emojis = [ 'one', 'two', 'three', 'four', 'five' ]
+$lats = []
+$rates = []
+$verbs = []
 
 opts = OptionParser.new(%{Usage: benchmarker.rb [options] <target>...
 
@@ -25,7 +32,6 @@ opts.on('-r', '--record', 'record to README.md')                         { $reco
 opts.on('-h', '--help', 'Show this display')                             { puts opts.help; Process.exit!(0) }
 
 $target_names = opts.parse(ARGV)
-$languages = {}
 
 # Serves as the collector of results and description of a target.
 class Target
@@ -38,6 +44,8 @@ class Target
   attr_accessor :requests
   attr_accessor :bytes
   attr_accessor :adjust
+  attr_accessor :code_files
+  attr_accessor :verbosity
 
   def initialize(info)
     @name = info['name']
@@ -53,6 +61,7 @@ class Target
     @adjust = 1.0 if @adjust.nil?
     @experimental = info['experimental']
     @post_format = info['post-format']
+    @code_files = info['code'].split(',').map { |name| name.strip }
 
     @duration = 0.0
     @requests = 0
@@ -64,10 +73,26 @@ class Target
     @lat_99 = 0.0
     @lat_999 = 0.0
     @lat_cnt = 0
+    @verbosity = 0
   end
 
   def to_s
     "Target{ lang: #{@lang} name: #{@name} version: #{@version} link: #{@link} duration: #{@duration} requests: #{@requests} }"
+  end
+
+  def table_args
+    [lang,
+     langver,
+     name,
+     link,
+     version,
+     rate.to_i,
+     latency_mean,
+     latency_average,
+     latency_90,
+     latency_99,
+     latency_stdev,
+     verbosity]
   end
 
   def add_latency(average, mean, stdev, l90, l99, l999)
@@ -120,31 +145,39 @@ class Target
     (@bytes / 1024 / 1024).to_f / @duration.to_f
   end
 
-end
-
-### Collect the frameworks ########################################################
-
-$targets = []
-
-root = File.expand_path('../frameworks', __FILE__)
-Dir.glob(root + '/*').each { |dir|
-  base = File.basename(dir)
-  info = YAML.load(File.read(dir + "/info.yml"))
-  next if !$all && info['experimental']
-  if $target_names.nil? || 0 == $target_names.size || $target_names.include?(info['name']) || $target_names.include?(info['language'])
-    $targets << Target.new(info)
+  def count_lines
+    cnt = 0
+    @code_files.each { |filename|
+      path = "#{$root}/#{@name}/#{filename}"
+      next unless File.readable?(path)
+      f = File.new(path)
+      f.each_line do |line|
+	line.strip!
+	next if line.length == 0
+	# skip comments
+	next if line[0] == '#'
+	next if line[0] == '/' && 1 < line.length && line[1] == '/'
+	cnt += 1 + line.length / 80
+      end
+    }
+    cnt
   end
-}
 
-### Running the benchmarks ####################################################
+end
 
 def benchmark(target, ip)
   thread_count = ($threads * target.adjust).to_i
   thread_count = 1 if 1 > thread_count
-  ['/', '/graphql?query={hello\(name:"world"\)}'].each { |route|
+  complex = '/graphql?query={artists{name,origin,songs{name,duration,likes}},__schema{types{name,fields{name}}}}'
 
-    # First run at full throttle to get the maximum rate and throughput.
-    out = `perfer -d #{$duration} -c #{$connections} -t #{thread_count} -k -b 5 -j http://#{ip}:3000#{route}`
+  # query
+  # Multiple paths can be used. For just the graphql part use only the
+  # 'complex' path.
+  #['/', complex].each { |route|
+  #[complex].each { |route|
+  [].each { |route|
+    # throughput: First run at full throttle to get the maximum rate and throughput.
+    out = `perfer -d #{$duration} -c #{$connections} -t #{thread_count} -k -b 5 -j "http://#{ip}:3000#{route}"`
     puts "#{target.name} - #{route} maximum rate output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 
@@ -152,9 +185,10 @@ def benchmark(target, ip)
     target.requests += bench['results']['requests']
     target.bytes += bench['results']['totalBytes']
 
+    # latency
     # Make a separate run for latency are a leisurely rate to determine the
     # latency when under normal load.
-    out = `perfer -d #{$duration} -c 10 -t 1 -k -b 1 -j -m 1000 -l 50,90,99,99.9 http://#{ip}:3000#{route}`
+    out = `perfer -d #{$duration} -c 10 -t 1 -k -b 1 -j -m 1000 -l 50,90,99,99.9 "http://#{ip}:3000#{route}"`
     puts "#{target.name} - #{route} latency output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 
@@ -168,8 +202,10 @@ def benchmark(target, ip)
 		       spread['99.90'])
   }
 
+  # mutation
   ['/graphql'].each { |route|
-    out = `perfer -d #{$duration} -c #{$connections} -t #{thread_count} -k -b 5 -j -a 'Content-Type: application/graphql' -p 'mutation { like }' http://#{ip}:3000#{route}`
+    # throughput
+    out = `perfer -d #{$duration} -c #{$connections} -t #{thread_count} -k -b 3 -j -a 'Content-Type: application/graphql' -p 'mutation{like(artist:"Fazerdaze",song:"Jennifer"){likes}}' http://#{ip}:3000#{route}`
     puts "#{target.name} - POST #{route} maximum rate output: #{out}" if 2 < $verbose
     bench = Oj.load(out, mode: :strict)
 
@@ -177,6 +213,7 @@ def benchmark(target, ip)
     target.requests += bench['results']['requests']
     target.bytes += bench['results']['totalBytes']
 
+    # latency
     # Make a separate run for latency are a leisurely rate to determine the
     # latency when under normal load.
     out = `perfer -d #{$duration} -c 10 -t 1 -k -b 1 -j -m 1000 -l 50,90,99,99.9 http://#{ip}:3000#{route}`
@@ -195,8 +232,156 @@ def benchmark(target, ip)
   [target.rate, target.latency_mean]
 end
 
+### Display results ###########################################################
+
+def show_results(lats, rates, verbs)
+  puts
+  puts "\x1b[1mTop 5 Ranking\x1b[m"
+  puts "\x1b[4mRate                \x1b[m  \x1b[4mLatency             \x1b[m  \x1b[4mVerbosity           \x1b[m"
+  lats[0..4].size.times { |i|
+    lt = lats[i]
+    rt = rates[i]
+    vt = verbs[i]
+    puts "%-20s  %-20s  %-20s" % ["#{rt.name} (#{rt.lang})", "#{lt.name} (#{lt.lang})", "#{vt.name} (#{vt.lang})"]
+  }
+  puts
+  puts "\x1b[1mParameters\x1b[m"
+  puts "- Last updated: #{Time.now.strftime("%Y-%m-%d")}"
+  puts "- OS: #{`uname -s`.rstrip} (version: #{`uname -r`.rstrip}, arch: #{`uname -m`.rstrip})"
+  puts "- CPU Cores: #{Etc.nprocessors}"
+  puts "- Connections: #{$connections}"
+  puts "- Duration: #{$duration} seconds"
+  puts "- Units:"
+  puts "  - Rates are in requests per second."
+  puts "  - Latency is in milliseconds."
+  puts "  - Verbosity is the number of non-blank lines of code excluding comments."
+  puts
+  puts "\x1b[1mRates\x1b[m"
+  puts "\x1b[4mLanguage            \x1b[m  \x1b[4mFramework           \x1b[m  \x1b[4m      \x1b[1mRate\x1b[m  \x1b[4m   Latency\x1b[m  \x1b[4m Verbosity\x1b[m  \x1b[4mThroughput\x1b[m"
+  rates.each { |t|
+    puts "%-20s  %-20s  \x1b[1m%10d\x1b[m  %10.3f  %10d  %10.2f" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.latency_mean, t.verbosity, t.throughput]
+  }
+  puts
+  puts "\x1b[1mLatency\x1b[m"
+  puts "\x1b[4mLanguage            \x1b[m  \x1b[4mFramework           \x1b[m  \x1b[4m      Rate\x1b[m  \x1b[4m   \x1b[1mLatency\x1b[m  \x1b[4m Verbosity\x1b[m  \x1b[4m   Average\x1b[m  \x1b[4m    90th %\x1b[m  \x1b[4m    99th %\x1b[m  \x1b[4m   Std Dev\x1b[m"
+  lats.each { |t|
+    puts "%-20s  %-20s  %10d  \x1b[1m%10.3f\x1b[m  %10d  %10.3f  %10.3f  %10.3f  %10.2f" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.latency_mean, t.verbosity, t.latency_average, t.latency_90, t.latency_99, t.latency_stdev]
+  }
+  puts
+  puts "\x1b[1mVerbosity\x1b[m"
+  puts "\x1b[4mLanguage            \x1b[m  \x1b[4mFramework           \x1b[m  \x1b[4m      Rate\x1b[m  \x1b[4m   Latency\x1b[m  \x1b[4m \x1b[1mVerbosity\x1b[m"
+  verbs.each { |t|
+    puts "%-20s  %-20s  %10d  %10.3f  \x1b[1m%10d\x1b[m" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.latency_mean, t.verbosity]
+  }
+  puts
+end
+
+def add_header(out, label)
+  out.puts('#### Parameters')
+  out.puts("- Last updated: #{Time.now.strftime("%Y-%m-%d")}")
+  out.puts("- OS: #{`uname -s`.rstrip} (version: #{`uname -r`.rstrip}, arch: #{`uname -m`.rstrip})")
+  out.puts("- CPU Cores: #{Etc.nprocessors}")
+  out.puts("- Connections: #{$connections}")
+  out.puts("- Duration: #{$duration} seconds")
+  unless label.nil?
+    out.puts("- Units:")
+    out.puts("  - _Rates_ are in requests per second.")
+    out.puts("  - _Latency_ is in milliseconds.")
+    out.puts("  - _Verbosity_ is the number of non-blank lines of code excluding comments.")
+  end
+    out.puts()
+    out.puts("| [Rate](rates.md) | [Latency](latency.md) | [Verbosity](verbosity.md) | [README](README.md) |")
+    out.puts("| ---------------- | --------------------- | ------------------------- | ------------------- |")
+  unless label.nil?
+    out.puts()
+    out.puts("### #{label}")
+    out.puts('| Language | Framework(version) | Mean Latency | Average Latency | 90th % | 99th % | Std Dev | Rate | Verbosity |')
+    out.puts('| -------- | ------------------ | ------------:| ---------------:| ------:| ------:| -------:| ----:| ---------:|')
+  end
+end
+
+
+def replace_content(content, result)
+  content.gsub!(/\<!--\sResult\sfrom\shere\s-->[\s\S]*?<!--\sResult\still\shere\s-->/,
+		"<!-- Result from here -->\n" + result + "<!-- Result till here -->")
+end
+
+def update_readme(lats, rates, verbs)
+  out = StringIO.new()
+  out.puts('### Top 5 Ranking')
+  out.puts('|     | Rate | Latency | Verbosity |')
+  out.puts('|:---:| ---- | ------- | --------- |')
+
+  lats[0..4].size.times { |i|
+    lt = lats[i]
+    rt = rates[i]
+    vt = verbs[i]
+    out.puts("| :%s: | %s (%s) | %s (%s) | %s (%s) |" %
+	      [$emojis[i], rt.name, rt.lang, lt.name, lt.lang, vt.name, vt.lang])
+  }
+  out.puts()
+  add_header(out, nil)
+
+  path = File.expand_path('../README.md', __FILE__)
+  content = File.read(path)
+  replace_content(content, out.string)
+  File.write(path, content)
+end
+
+def update_latency(lats)
+  out = StringIO.new()
+  out.puts()
+  add_header(out, 'Latency')
+  lats.each { |t|
+    out.puts("| %s (%s) | [%s](%s) (%s) | %d | **%.3f** | %.3f | %.3f | %.3f | %.2f | %d |" % t.table_args)
+  }
+  path = File.expand_path('../latency.md', __FILE__)
+  content = File.read(path)
+  replace_content(content, out.string)
+  File.write(path, content)
+end
+
+def update_rates(rates)
+  out = StringIO.new()
+  out.puts()
+  add_header(out, 'Rate')
+  rates.each { |t|
+    out.puts("| %s (%s) | [%s](%s) (%s) | **%d** | %.3f | %.3f | %.3f | %.3f | %.2f | %d |" % t.table_args)
+  }
+  path = File.expand_path('../rates.md', __FILE__)
+  content = File.read(path)
+  replace_content(content, out.string)
+  File.write(path, content)
+end
+
+def update_verbs(verbs)
+  out = StringIO.new()
+  out.puts()
+  add_header(out, 'Verbosity')
+  verbs.each { |t|
+    out.puts("| %s (%s) | [%s](%s) (%s) | %d | %.3f | %.3f | %.3f | %.3f | %.2f | **%d** |" % t.table_args)
+  }
+  path = File.expand_path('../verbosity.md', __FILE__)
+  content = File.read(path)
+  replace_content(content, out.string)
+  File.write(path, content)
+end
+
+### Collect the frameworks and run them #######################################
+
+Dir.glob($root + '/*').each { |dir|
+  base = File.basename(dir)
+  info = YAML.load(File.read(dir + "/info.yml"))
+  next if !$all && info['experimental']
+  if $target_names.nil? || 0 == $target_names.size || $target_names.include?(info['name']) || $target_names.include?(info['language'])
+    $targets << Target.new(info)
+  end
+}
+
 $targets.each { |target|
   begin
+    target.verbosity = target.count_lines
+
     puts "#{target.name}" if 1 < $verbose
     cid = `docker run -td #{target.name}`.strip
     remote_ip = nil
@@ -209,7 +394,7 @@ $targets.each { |target|
       sleep 1
     end
     raise StandardError.new("failed to start docker for #{target.name}") if remote_ip.nil? || remote_ip.empty?
-    puts "Docker container for #{target.name} is #{cid}." if 2 < $verbose
+    puts "Docker container for #{target.name} is #{cid} at #{remote_ip}." if 2 < $verbose
 
     # Wait for the server in the container to be up and responsive before
     # continuing using the same technique of avoiding a race condition.
@@ -228,7 +413,7 @@ $targets.each { |target|
     raise error unless error.nil?
     puts "Server on #{target.name} has responded." if 2 < $verbose
 
-    sleep 2
+    sleep 2 # Be nice and let the app really get ready if it needs more time (some do)
 
     benchmark(target, remote_ip)
     puts "  Benchmarks for #{target.name} - rate: #{target.rate.to_i} req/sec  latency: #{target.latency_mean.round(2)} ms." if 1 < $verbose
@@ -238,55 +423,16 @@ $targets.each { |target|
   end
 }
 
-### Display results ###########################################################
+$lats = $targets.sort{ |ta, tb| ta.latency_mean <=> tb.latency_mean }
+$rates = $targets.sort{ |ta, tb| tb.rate <=> ta.rate }
+$verbs = $targets.sort{ |ta, tb| ta.verbosity <=> tb.verbosity }
 
-emojis = [ 'one', 'two', 'three', 'four', 'five' ]
-
-lats = $targets.sort{ |ta, tb| ta.latency_mean <=> tb.latency_mean }
-rates = $targets.sort{ |ta, tb| tb.rate <=> ta.rate }
-
-$out = StringIO.new()
-
-$out.puts('### Top 5 Ranking')
-$out.puts('|     | Requests/second |     | Latency (milliseconds) |')
-$out.puts('|:---:| --------------- |:---:| ---------------------- |')
-
-lats[0..4].size.times { |i|
-  lt = lats[i]
-  rt = rates[i]
-  $out.puts("| :%s: | %s (%s) | :%s: | %s (%s) |" % [emojis[i], rt.name, rt.lang, emojis[i], lt.name, lt.lang])
-}
-$out.puts()
-
-$out.puts('#### Parameters')
-$out.puts("- Last updates: #{Time.now.strftime("%Y-%m-%d")}")
-$out.puts("- OS: #{`uname -s`.rstrip} (version: #{`uname -r`.rstrip}, arch: #{`uname -m`.rstrip})")
-$out.puts("- CPU Cores: #{Etc.nprocessors}")
-$out.puts("- Connections: #{$connections}")
-$out.puts("- Duration: #{$duration} seconds")
-$out.puts()
-
-$out.puts('### Rate (requests per second)')
-$out.puts('| Language (Runtime) | Framework (Middleware) | Requests/second | Throughput (MB/sec) |')
-$out.puts('| -------------------| ---------------------- | ---------------:| -------------------:|')
-rates.each { |t|
-  $out.puts("| %s (%s) | [%s](%s) (%s) | %d | %.2f MB/sec |" % [t.lang, t.langver, t.name, t.link, t.version, t.rate.to_i, t.throughput])
-}
-
-$out.puts()
-$out.puts('### Latency')
-$out.puts('| Language (Runtime) | Framework (Middleware) | Average Latency | Mean Latency | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation |')
-$out.puts('| ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| ---------------:| -----------------:| ------------------:|')
-lats.each { |t|
-  $out.puts("| %s (%s) | [%s](%s) (%s) | %.2f ms | **%.2f ms** | %.2f ms | %.2f ms | %.2f ms | %.2f |" %
-	    [t.lang, t.langver, t.name, t.link, t.version, t.latency_average, t.latency_mean, t.latency_90, t.latency_99, t.latency_999, t.latency_stdev])
-}
-
-puts $out.string
+## display results
+show_results($lats, $rates, $verbs)
 
 if $record
-  path = File.expand_path('../README.md', __FILE__)
-  readme = File.read(path)
-  readme.gsub!(/\<!--\sResult\sfrom\shere\s-->[\s\S]*?<!--\sResult\still\shere\s-->/, "<!-- Result from here -->\n" + $out.string + "<!-- Result till here -->")
-  File.write(path, readme)
+  update_readme($lats, $rates, $verbs)
+  update_latency($lats)
+  update_rates($rates)
+  update_verbs($verbs)
 end

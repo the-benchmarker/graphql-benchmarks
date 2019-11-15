@@ -10,32 +10,21 @@ bottom of this page.
 
 <!-- Result from here -->
 ### Top 5 Ranking
-|     | Requests/second |     | Latency (milliseconds) |
-|:---:| --------------- |:---:| ---------------------- |
-| :one: | agoo-c (c) | :one: | agoo (ruby) |
-| :two: | agoo (ruby) | :two: | graphql-go (go) |
-| :three: | graphql-go (go) | :three: | agoo-c (c) |
+|     | Rate | Latency | Verbosity |
+|:---:| ---- | ------- | --------- |
+| :one: | agoo-c (c) | agoo-c (c) | agoo (ruby) |
+| :two: | agoo (ruby) | agoo (ruby) | agoo-c (c) |
+| :three: | graphql-go (go) | graphql-go (go) | graphql-go (go) |
 
 #### Parameters
-- Last updates: 2019-04-20
-- OS: Linux (version: 5.0.8-050008-generic, arch: x86_64)
+- Last updated: 2019-11-09
+- OS: Linux (version: 5.3.8-050308-generic, arch: x86_64)
 - CPU Cores: 12
 - Connections: 1000
 - Duration: 20 seconds
 
-### Rate (requests per second)
-| Language (Runtime) | Framework (Middleware) | Requests/second | Throughput (MB/sec) |
-| -------------------| ---------------------- | ---------------:| -------------------:|
-| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 507990 | 32.22 MB/sec |
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 237539 | 20.87 MB/sec |
-| go (1.12) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | 139598 | 12.97 MB/sec |
-
-### Latency
-| Language (Runtime) | Framework (Middleware) | Average Latency | Mean Latency | 90th percentile | 99th percentile | 99.9th percentile | Standard Deviation |
-| ------------------ | ---------------------- | ---------------:| ------------:| ---------------:| ---------------:| -----------------:| ------------------:|
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.8) | 0.29 ms | **0.07 ms** | 1.00 ms | 1.04 ms | 1.05 ms | 0.46 |
-| go (1.12) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.8) | 0.09 ms | **0.08 ms** | 0.10 ms | 0.19 ms | 0.37 ms | 0.03 |
-| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.5) | 0.53 ms | **0.09 ms** | 0.71 ms | 2.37 ms | 2.38 ms | 0.86 |
+| [Rate](rates.md) | [Latency](latency.md) | [Verbosity](verbosity.md) | [README](README.md) |
+| ---------------- | --------------------- | ------------------------- | ------------------- |
 <!-- Result till here -->
 
 ## Requirements

@@ -295,8 +295,8 @@ def add_header(out, label)
   unless label.nil?
     out.puts()
     out.puts("### #{label}")
-    out.puts('| Language | Framework(version) | Mean Latency | Average Latency | 90th % | 99th % | Std Dev | Rate | Verbosity |')
-    out.puts('| -------- | ------------------ | ------------:| ---------------:| ------:| ------:| -------:| ----:| ---------:|')
+    out.puts('| Language | Framework(version) | Rate | Mean Latency | Average Latency | 90th % | 99th % | Std Dev | Verbosity |')
+    out.puts('| -------- | ------------------ | ----:| ------------:| ---------------:| ------:| ------:| -------:| ---------:|')
   end
 end
 
@@ -383,7 +383,7 @@ $targets.each { |target|
     target.verbosity = target.count_lines
 
     puts "#{target.name}" if 1 < $verbose
-    cid = `docker run -td #{target.name}`.strip
+    cid = `docker run -e LOCAL_STATE_STORE='true' -td #{target.name}`.strip
     remote_ip = nil
     # Dual purpose, get the IP address in the container for the server and
     # detect when the container is available. That avoids using a simple sleep

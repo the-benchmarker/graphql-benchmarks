@@ -12,12 +12,15 @@ require 'agoo'
 # workers would make more sense this benchmark test. Flip the flag to change
 # the test.
 
-# Uncomment for multiple workers and then comment out the following init call.
-#worker_count = Etc.nprocessors() / 3
-#worker_count = 1 if worker_count < 1
-#Agoo::Server.init(3000, '.', thread_count: 2, worker_count: worker_count, graphql: '/graphql', poll_timeout: 0.1)
-
-Agoo::Server.init(3000, '.', thread_count: 2, worker_count: 1, graphql: '/graphql', poll_timeout: 0.01)
+# If state is stored in the app itself (in memory) then only a single worker
+# should be used.
+if ENV['LOCAL_STATE_STORE'] == 'true'
+  Agoo::Server.init(3000, '.', thread_count: 2, worker_count: 1, graphql: '/graphql', poll_timeout: 0.01)
+else
+  worker_count = Etc.nprocessors() / 3
+  worker_count = 1 if worker_count < 1
+  Agoo::Server.init(3000, '.', thread_count: 2, worker_count: worker_count, graphql: '/graphql', poll_timeout: 0.1)
+end
 
 # Empty response.
 class Empty

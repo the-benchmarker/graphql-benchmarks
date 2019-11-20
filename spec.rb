@@ -37,7 +37,7 @@ end
 class TestClient < GetPoster
   def initialize(name)
     @name = name
-    @cid = `docker run -td #{@name}`.strip
+    @cid = `docker run -e LOCAL_STATE_STORE='true' -td #{@name}`.strip
     # Dual purpose, get the IP address in the container for the server and
     # detect when the container is available. That avoids using a simple sleep
     # which sets up a race condition.

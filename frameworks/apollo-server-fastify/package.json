@@ -1,0 +1,6 @@
+{
+	"dependencies": {
+		"fastify": "^2.10.0",
+		"apollo-server-fastify": "^2.9.12"
+	}
+}

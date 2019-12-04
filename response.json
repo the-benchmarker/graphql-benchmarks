@@ -177,10 +177,6 @@
           ]
         },
         {
-          "name":"ID",
-          "kind":"SCALAR"
-        },
-        {
           "name":"Artist",
           "kind":"OBJECT",
           "fields":[
@@ -303,10 +299,6 @@
               "name":"ofType"
             }
           ]
-        },
-        {
-          "name":"Float",
-          "kind":"SCALAR"
         }
       ]
     }

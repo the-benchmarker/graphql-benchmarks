@@ -202,7 +202,6 @@ $expect_result = {
            {name: 'likes'}
          ]
         },
-        {name: 'ID'},
         {name: 'Artist',
          fields: [
            {name: 'name'},
@@ -255,8 +254,7 @@ $expect_result = {
            {name: 'inputFields'},
            {name: 'ofType'}
          ]
-        },
-        {name: 'Float'}
+        }
       ]
     }
   }

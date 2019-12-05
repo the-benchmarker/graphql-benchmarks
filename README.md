@@ -12,13 +12,15 @@ bottom of this page.
 ### Top 5 Ranking
 |     | Rate | Latency | Verbosity |
 |:---:| ---- | ------- | --------- |
-| :one: | agoo-c (c) | agoo-c (c) | agoo (ruby) |
-| :two: | agoo (ruby) | agoo (ruby) | agoo-c (c) |
-| :three: | graphql-go (go) | graphql-go (go) | graphql-go (go) |
+| :one: | agoo-c (c) | agoo-c (c) | express-graphql (javascript) |
+| :two: | agoo (ruby) | agoo (ruby) | fastify-gql (javascript) |
+| :three: | ggql-i (go) | ggql-i (go) | apollo-server-express (javascript) |
+| :four: | ggql (go) | ggql (go) | apollo-server-fastify (javascript) |
+| :five: | fastify-gql (javascript) | graphql-go (go) | agoo (ruby) |
 
 #### Parameters
-- Last updated: 2019-11-09
-- OS: Linux (version: 5.3.8-050308-generic, arch: x86_64)
+- Last updated: 2019-12-05
+- OS: Linux (version: 5.4.0-050400-generic, arch: x86_64)
 - CPU Cores: 12
 - Connections: 1000
 - Duration: 20 seconds

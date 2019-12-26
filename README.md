@@ -99,7 +99,7 @@ These benchmarks show the normal-load latency as that is what most users will
 see when using a service. Most deployments do not run at near maximum
 throughput but try to stay in the normal-load are but are prepared for spike
 in usage. To accomdate slower frameworks a value of 1000 request per second is
-used for determing the mean latency. The assumption is that a rate of 1000
+used for determing the median latency. The assumption is that a rate of 1000
 request per second falls in the normal range for most if not all frameworks
 tested.
 

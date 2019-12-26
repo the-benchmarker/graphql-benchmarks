@@ -67,7 +67,7 @@ class Target
     @requests = 0
     @bytes = 0
     @lat_ave = 0.0
-    @lat_mean = 0.0
+    @lat_median = 0.0
     @lat_stdev = 0.0
     @lat_90 = 0.0
     @lat_99 = 0.0
@@ -87,7 +87,7 @@ class Target
      link,
      version,
      rate.to_i,
-     latency_mean,
+     latency_median,
      latency_average,
      latency_90,
      latency_99,
@@ -95,9 +95,9 @@ class Target
      verbosity]
   end
 
-  def add_latency(average, mean, stdev, l90, l99, l999)
+  def add_latency(average, median, stdev, l90, l99, l999)
     @lat_ave += average
-    @lat_mean += mean
+    @lat_median += median
     @lat_stdev += stdev
     @lat_90 += l90
     @lat_99 += l99
@@ -110,9 +110,9 @@ class Target
     @lat_ave.to_f / @lat_cnt.to_f
   end
 
-  def latency_mean
+  def latency_median
     return 0 if @lat_cnt <= 0
-    @lat_mean.to_f / @lat_cnt.to_f
+    @lat_median.to_f / @lat_cnt.to_f
   end
 
   def latency_stdev
@@ -229,7 +229,7 @@ def benchmark(target, ip)
 		       spread['99.00'],
 		       spread['99.90'])
   }
-  [target.rate, target.latency_mean]
+  [target.rate, target.latency_median]
 end
 
 ### Display results ###########################################################
@@ -259,19 +259,19 @@ def show_results(lats, rates, verbs)
   puts "\x1b[1mRates\x1b[m"
   puts "\x1b[4mLanguage            \x1b[m  \x1b[4mFramework           \x1b[m  \x1b[4m      \x1b[1mRate\x1b[m  \x1b[4m   Latency\x1b[m  \x1b[4m Verbosity\x1b[m  \x1b[4mThroughput\x1b[m"
   rates.each { |t|
-    puts "%-20s  %-20s  \x1b[1m%10d\x1b[m  %10.3f  %10d  %10.2f" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.latency_mean, t.verbosity, t.throughput]
+    puts "%-20s  %-20s  \x1b[1m%10d\x1b[m  %10.3f  %10d  %10.2f" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.latency_median, t.verbosity, t.throughput]
   }
   puts
   puts "\x1b[1mLatency\x1b[m"
   puts "\x1b[4mLanguage            \x1b[m  \x1b[4mFramework           \x1b[m  \x1b[4m      Rate\x1b[m  \x1b[4m   \x1b[1mLatency\x1b[m  \x1b[4m Verbosity\x1b[m  \x1b[4m   Average\x1b[m  \x1b[4m    90th %\x1b[m  \x1b[4m    99th %\x1b[m  \x1b[4m   Std Dev\x1b[m"
   lats.each { |t|
-    puts "%-20s  %-20s  %10d  \x1b[1m%10.3f\x1b[m  %10d  %10.3f  %10.3f  %10.3f  %10.2f" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.latency_mean, t.verbosity, t.latency_average, t.latency_90, t.latency_99, t.latency_stdev]
+    puts "%-20s  %-20s  %10d  \x1b[1m%10.3f\x1b[m  %10d  %10.3f  %10.3f  %10.3f  %10.2f" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.latency_median, t.verbosity, t.latency_average, t.latency_90, t.latency_99, t.latency_stdev]
   }
   puts
   puts "\x1b[1mVerbosity\x1b[m"
   puts "\x1b[4mLanguage            \x1b[m  \x1b[4mFramework           \x1b[m  \x1b[4m      Rate\x1b[m  \x1b[4m   Latency\x1b[m  \x1b[4m \x1b[1mVerbosity\x1b[m"
   verbs.each { |t|
-    puts "%-20s  %-20s  %10d  %10.3f  \x1b[1m%10d\x1b[m" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.latency_mean, t.verbosity]
+    puts "%-20s  %-20s  %10d  %10.3f  \x1b[1m%10d\x1b[m" % ["#{t.lang} (#{t.langver})", "#{t.name} (#{t.version})", t.rate.to_i, t.latency_median, t.verbosity]
   }
   puts
 end
@@ -295,7 +295,7 @@ def add_header(out, label)
   unless label.nil?
     out.puts()
     out.puts("### #{label}")
-    out.puts('| Language | Framework(version) | Rate | Mean Latency | Average Latency | 90th % | 99th % | Std Dev | Verbosity |')
+    out.puts('| Language | Framework(version) | Rate | Median Latency | Average Latency | 90th % | 99th % | Std Dev | Verbosity |')
     out.puts('| -------- | ------------------ | ----:| ------------:| ---------------:| ------:| ------:| -------:| ---------:|')
   end
 end
@@ -416,14 +416,14 @@ $targets.each { |target|
     sleep 2 # Be nice and let the app really get ready if it needs more time (some do)
 
     benchmark(target, remote_ip)
-    puts "  Benchmarks for #{target.name} - rate: #{target.rate.to_i} req/sec  latency: #{target.latency_mean.round(2)} ms." if 1 < $verbose
+    puts "  Benchmarks for #{target.name} - rate: #{target.rate.to_i} req/sec  latency: #{target.latency_median.round(2)} ms." if 1 < $verbose
   ensure
     puts "Stopping Docker container #{cid} for #{target.name}." if 2 < $verbose
     `docker stop #{cid}`
   end
 }
 
-$lats = $targets.sort{ |ta, tb| ta.latency_mean <=> tb.latency_mean }
+$lats = $targets.sort{ |ta, tb| ta.latency_median <=> tb.latency_median }
 $rates = $targets.sort{ |ta, tb| tb.rate <=> ta.rate }
 $verbs = $targets.sort{ |ta, tb| ta.verbosity <=> tb.verbosity }
 

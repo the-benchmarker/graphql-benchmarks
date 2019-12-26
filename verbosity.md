@@ -17,7 +17,7 @@
 | ---------------- | --------------------- | ------------------------- | ------------------- |
 
 ### Verbosity
-| Language | Framework(version) | Rate | Mean Latency | Average Latency | 90th % | 99th % | Std Dev | Verbosity |
+| Language | Framework(version) | Rate | Median Latency | Average Latency | 90th % | 99th % | Std Dev | Verbosity |
 | -------- | ------------------ | ----:| ------------:| ---------------:| ------:| ------:| -------:| ---------:|
 | javascript (12.13.1) | [express-graphql](https://github.com/graphql/express-graphql) (0.9.0) | 6745 | 0.145 | 0.152 | 0.166 | 0.186 | 0.05 | **78** |
 | javascript (12.13.1) | [fastify-gql](https://github.com/mcollina/fastify-gql) (2.0.2) | 31076 | 0.214 | 0.767 | 2.097 | 2.359 | 1.04 | **90** |

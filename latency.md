@@ -17,7 +17,7 @@
 | ---------------- | --------------------- | ------------------------- | ------------------- |
 
 ### Latency
-| Language | Framework(version) | Rate | Mean Latency | Average Latency | 90th % | 99th % | Std Dev | Verbosity |
+| Language | Framework(version) | Rate | Median Latency | Average Latency | 90th % | 99th % | Std Dev | Verbosity |
 | -------- | ------------------ | ----:| ------------:| ---------------:| ------:| ------:| -------:| ---------:|
 | c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.7.3) | 406736 | **0.029** | 0.057 | 0.175 | 0.184 | 0.07 | 320 |
 | ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.11.4) | 183064 | **0.032** | 0.141 | 0.210 | 1.956 | 0.35 | 105 |

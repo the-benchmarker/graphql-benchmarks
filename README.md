@@ -16,11 +16,11 @@ bottom of this page.
 | :two: | agoo (ruby) | agoo (ruby) | fastify-gql (javascript) |
 | :three: | fastify-gql (javascript) | graphql-go (go) | apollo-server-express (javascript) |
 | :four: | graphql-go (go) | express-graphql (javascript) | apollo-server-fastify (javascript) |
-| :five: | apollo-server-fastify (javascript) | apollo-server-fastify (javascript) | agoo (ruby) |
+| :five: | apollo-server-fastify (javascript) | apollo-server-express (javascript) | agoo (ruby) |
 
 #### Parameters
-- Last updated: 2019-12-05
-- OS: Linux (version: 5.4.0-050400-generic, arch: x86_64)
+- Last updated: 2019-12-29
+- OS: Linux (version: 5.4.6-050406-generic, arch: x86_64)
 - CPU Cores: 12
 - Connections: 1000
 - Duration: 20 seconds

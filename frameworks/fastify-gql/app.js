@@ -84,7 +84,7 @@ if (!app.hasContentTypeParser('application/graphql')) {
 
 app
   .get('/', (request, reply) => reply.send())
-  .register(fastifyGQL, { schema, resolvers, graphiql: false })
+  .register(fastifyGQL, { schema, resolvers, graphiql: false, jit: 1 })
   .listen(3000, '0.0.0.0')
   .then((address) => console.log(`GraphQL API server is listening at ${address}/graphql`))
   .catch(err => {

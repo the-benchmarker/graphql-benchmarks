@@ -68,20 +68,6 @@ const resolvers = {
   }
 }
 
-// fastify and fastify-gql do not support application/graphql parser
-if (!app.hasContentTypeParser('application/graphql')) {
-  app.addContentTypeParser('application/graphql', function (req, done) {
-    var body = ''
-    req.on('data', function (data) {
-      body += data
-    })
-    req.on('end', function () {
-      done(null, { query: body.replace('=', ' ') })
-    })
-    req.on('error', done)
-  })
-}
-
 app
   .get('/', (request, reply) => reply.send())
   .register(fastifyGQL, { schema, resolvers, graphiql: false, jit: 1 })

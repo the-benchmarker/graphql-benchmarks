@@ -1,6 +1,6 @@
 name: graphql-go
 website: https://github.com/graphql-go/graphql
-version: "0.7.8"
+version: "0.7.9"
 language: "go"
 language-version: "1.13"
 bench-adjust: 0.5

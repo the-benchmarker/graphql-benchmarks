@@ -1,2 +1,2 @@
-gitlab.com/uhn/ggql v1.0.0 h1:HbrIdTQnhWIVAbBOWcyyaMTexfLxSLbEE6K9KHxbv94=
-gitlab.com/uhn/ggql v1.0.0/go.mod h1:jBSXy7HdPlvO26+pC6KPjqM6uvOm4HpQXMbskaBFxZg=
+github.com/uhn/ggql v1.0.0 h1:jZtMlToH0sE4DTl3F1fxl4wwIoWhBEuz5hSTzqQN+ac=
+github.com/uhn/ggql v1.0.0/go.mod h1:t5sihC8VVLYmjNY7XPpSppGZ9XHJVoxA1GP4cqs9pQ8=

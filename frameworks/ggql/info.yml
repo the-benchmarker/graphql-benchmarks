@@ -1,5 +1,5 @@
 name: ggql
-website: https://gitlab.com/uhn/ggql
+website: https://github.com/uhn/ggql
 version: "1.0.0"
 language: "go"
 language-version: "1.14"

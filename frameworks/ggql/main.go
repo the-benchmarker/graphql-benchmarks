@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"gitlab.com/uhn/ggql/pkg/ggql"
+	"github.com/uhn/ggql/pkg/ggql"
 )
 
 // Define the types and data in a generic way without considering the GraphQL

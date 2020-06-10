@@ -3,8 +3,8 @@
 <!-- Result from here -->
 
 #### Parameters
-- Last updated: 2020-02-15
-- OS: Linux (version: 5.5.4-050504-generic, arch: x86_64)
+- Last updated: 2020-06-10
+- OS: Linux (version: 5.7.1-050701-generic, arch: x86_64)
 - CPU Cores: 12
 - Connections: 1000
 - Duration: 20 seconds
@@ -19,11 +19,13 @@
 ### Latency
 | Language | Framework(version) | Rate | Median Latency | Average Latency | 90th % | 99th % | Std Dev | Verbosity |
 | -------- | ------------------ | ----:| ------------:| ---------------:| ------:| ------:| -------:| ---------:|
-| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.7.3) | 384497 | **0.030** | 0.066 | 0.178 | 0.187 | 0.08 | 320 |
-| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.11.4) | 170435 | **0.032** | 0.068 | 0.169 | 0.305 | 0.08 | 105 |
-| go (1.13) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.9) | 29627 | **0.086** | 0.086 | 0.092 | 0.164 | 0.03 | 378 |
-| javascript (12.13.1) | [express-graphql](https://github.com/graphql/express-graphql) (0.9.0) | 6904 | **0.141** | 0.148 | 0.155 | 0.198 | 0.05 | 78 |
-| javascript (12.13.1) | [fastify-gql](https://github.com/mcollina/fastify-gql) (2.0.2) | 35275 | **0.147** | 0.324 | 0.811 | 1.024 | 0.37 | 78 |
-| javascript (12.13.1) | [apollo-server-express](https://github.com/apollographql/apollo-server/tree/master/packages/apollo-server-express) (2.9.12) | 7493 | **0.156** | 0.173 | 0.181 | 0.508 | 0.18 | 94 |
-| javascript (12.13.1) | [apollo-server-fastify](https://github.com/apollographql/apollo-server/tree/master/packages/apollo-server-fastify) (2.9.12) | 9680 | **0.672** | 0.721 | 0.811 | 0.860 | 0.11 | 95 |
+| c (11) | [agoo-c](github.com/ohler55/agoo-c) (0.7.3) | 442020 | **0.026** | 0.064 | 0.174 | 0.183 | 0.09 | 320 |
+| ruby (2.6) | [agoo](github.com/ohler55/agoo) (2.11.4) | 159428 | **0.026** | 0.055 | 0.158 | 0.270 | 0.07 | 105 |
+| go (1.14) | [ggql-i](https://github.com/uhn/ggql) (1.0.0) | 205058 | **0.062** | 0.060 | 0.068 | 0.088 | 0.02 | 253 |
+| go (1.14) | [ggql](https://github.com/uhn/ggql) (1.0.0) | 201986 | **0.062** | 0.057 | 0.066 | 0.073 | 0.02 | 176 |
+| go (1.14) | [graphql-go](https://github.com/graphql-go/graphql) (0.7.9) | 32843 | **0.078** | 0.075 | 0.086 | 0.102 | 0.03 | 378 |
+| javascript (12.13.1) | [express-graphql](https://github.com/graphql/express-graphql) (0.9.0) | 7205 | **0.101** | 0.109 | 0.115 | 0.146 | 0.05 | 78 |
+| javascript (12.13.1) | [apollo-server-express](https://github.com/apollographql/apollo-server/tree/master/packages/apollo-server-express) (2.9.12) | 6872 | **0.155** | 0.173 | 0.179 | 0.362 | 0.17 | 94 |
+| javascript (12.13.1) | [fastify-gql](https://github.com/mcollina/fastify-gql) (2.0.2) | 37167 | **0.604** | 0.589 | 0.647 | 0.664 | 0.07 | 78 |
+| javascript (12.13.1) | [apollo-server-fastify](https://github.com/apollographql/apollo-server/tree/master/packages/apollo-server-fastify) (2.9.12) | 8910 | **0.651** | 0.697 | 0.774 | 0.799 | 0.09 | 95 |
 <!-- Result till here -->

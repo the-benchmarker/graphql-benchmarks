@@ -1,8 +1,8 @@
 name: ggql
 website: https://github.com/uhn/ggql
-version: "1.0.0"
+version: "1.2.1"
 language: "go"
-language-version: "1.14"
+language-version: "1.15"
 bench-adjust: 0.5
 experimental: false
 post-format: graphql

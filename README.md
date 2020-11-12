@@ -14,8 +14,8 @@ bottom of this page.
 |:---:| ---- | ------- | --------- |
 | :one: | agoo-c (c) | agoo-c (c) | fastify-gql (javascript) |
 | :two: | ggql-i (go) | agoo (ruby) | express-graphql (javascript) |
-| :three: | ggql (go) | ggql (go) | apollo-server-express (javascript) |
-| :four: | agoo (ruby) | ggql-i (go) | apollo-server-fastify (javascript) |
+| :three: | ggql (go) | ggql-i (go) | apollo-server-express (javascript) |
+| :four: | agoo (ruby) | ggql (go) | apollo-server-fastify (javascript) |
 | :five: | fastify-gql (javascript) | graphql-go (go) | agoo (ruby) |
 
 #### Parameters

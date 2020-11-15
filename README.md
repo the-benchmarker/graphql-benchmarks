@@ -19,7 +19,7 @@ bottom of this page.
 | :five: | fastify-gql (javascript) | graphql-go (go) | agoo (ruby) |
 
 #### Parameters
-- Last updated: 2020-06-10
+- Last updated: 2020-11-12
 - OS: Linux (version: 5.7.1-050701-generic, arch: x86_64)
 - CPU Cores: 12
 - Connections: 1000

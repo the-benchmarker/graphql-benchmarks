@@ -1,4 +1,4 @@
-FROM golang:1.14.0
+FROM golang:1.15
 
 WORKDIR /go/src/song
 COPY main.go go.mod song.graphql ./

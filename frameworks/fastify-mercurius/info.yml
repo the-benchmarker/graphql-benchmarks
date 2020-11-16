@@ -1,6 +1,6 @@
-name: express-graphql
-website: https://github.com/graphql/express-graphql
-version: "0.11.0"
+name: fastify-mercurius
+website: https://github.com/mercurius-js/mercurius
+version: "6.4.0"
 language: "javascript"
 language-version: "14.15.0"
 bench-adjust: 0.5

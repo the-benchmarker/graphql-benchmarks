@@ -1,4 +1,4 @@
-FROM node:12.13.1-slim
+FROM node:14.15.0-slim
 ENV NODE_ENV production
 ENV TINI_VERSION v0.18.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini

@@ -1,6 +1,6 @@
 {
 	"dependencies": {
 		"fastify": "^3.8.0",
-		"apollo-server-fastify": "^2.19.0"
+		"mercurius": "^6.4.0"
 	}
 }

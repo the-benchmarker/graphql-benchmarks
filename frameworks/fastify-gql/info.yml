@@ -1,9 +1,0 @@
-name: fastify-gql
-website: https://github.com/mcollina/fastify-gql
-version: "2.0.2"
-language: "javascript"
-language-version: "12.13.1"
-bench-adjust: 0.5
-experimental: false
-post-format: graphql
-code: app.js

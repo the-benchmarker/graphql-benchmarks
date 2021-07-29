@@ -1,10 +1,7 @@
-'use strict'
+import express from 'express'
+import { graphqlHTTP } from 'express-graphql'
+import { makeExecutableSchema } from '@graphql-tools/schema'
 
-const express = require('express')
-const { graphqlHTTP } = require('express-graphql')
-const { makeExecutableSchema } = require('graphql-tools')
-
-// Construct a schema, using GraphQL schema language
 var typeDefs = `
 type Query {
   artist(name: String!): Artist

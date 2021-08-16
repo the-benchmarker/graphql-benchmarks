@@ -1,8 +1,8 @@
 name: apollo-server-express
 website: https://github.com/apollographql/apollo-server/tree/master/packages/apollo-server-express
-version: "2.9.12"
+version: "3.1.2"
 language: "javascript"
-language-version: "14.15.0"
+language-version: "16.6.2"
 bench-adjust: 0.5
 experimental: false
 post-format: graphql

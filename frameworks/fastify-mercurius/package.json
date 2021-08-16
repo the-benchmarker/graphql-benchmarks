@@ -1,6 +1,7 @@
 {
+	"type": "module",
 	"dependencies": {
-		"fastify": "^3.8.0",
-		"mercurius": "^6.4.0"
+		"fastify": "^3.20.2",
+		"mercurius": "^8.1.2"
 	}
 }

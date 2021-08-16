@@ -1,7 +1,7 @@
-'use strict'
+import fastify from 'fastify'
+import mercurius from 'mercurius'
 
-const app = require('fastify')()
-const mercurius = require('mercurius')
+const app = fastify()
 
 const schema = `
   type Query {
@@ -70,10 +70,6 @@ const resolvers = {
 
 app
   .get('/', (request, reply) => reply.send())
-  .register(mercurius, { schema, resolvers, graphiql: false, jit: 1 })
+  .register(mercurius, { schema, resolvers, graphiql: true, jit: 1 })
   .listen(3000, '0.0.0.0')
   .then((address) => console.log(`GraphQL API server is listening at ${address}/graphql`))
-  .catch(err => {
-    console.error('Error starting server:', err)
-    process.exit(1)
-  })

@@ -14,12 +14,12 @@ bottom of this page.
 |:---:| ---- | ------- | --------- |
 | :one: | agoo-c (c) | agoo (ruby) | fastify-mercurius (javascript) |
 | :two: | ggql-i (go) | agoo-c (c) | express-graphql (javascript) |
-| :three: | ggql (go) | ggql (go) | apollo-server-fastify (javascript) |
-| :four: | agoo (ruby) | ggql-i (go) | apollo-server-express (javascript) |
-| :five: | fastify-mercurius (javascript) | graphql-go (go) | agoo (ruby) |
+| :three: | ggql (go) | ggql-i (go) | koa-koa-graphql (javascript) |
+| :four: | agoo (ruby) | ggql (go) | apollo-server-fastify (javascript) |
+| :five: | fastify-mercurius (javascript) | koa-koa-graphql (javascript) | apollo-server-express (javascript) |
 
 #### Parameters
-- Last updated: 2021-08-16
+- Last updated: 2021-08-19
 - OS: Linux (version: 5.7.1-050701-generic, arch: x86_64)
 - CPU Cores: 12
 - Connections: 1000

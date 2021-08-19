@@ -1,0 +1,9 @@
+{
+	"type": "module",
+	"dependencies": {
+		"@graphql-tools/schema": "^8.1.2",
+		"koa": "^2.13.1",
+		"koa-graphql": "^0.9.0",
+		"koa-router": "^10.0.0"
+	}
+}

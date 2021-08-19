@@ -1,0 +1,9 @@
+name: koa-koa-graphql
+website: https://github.com/graphql-community/koa-graphql
+version: "0.9.0"
+language: "javascript"
+language-version: "16.6.2"
+bench-adjust: 0.5
+experimental: false
+post-format: graphql
+code: app.js

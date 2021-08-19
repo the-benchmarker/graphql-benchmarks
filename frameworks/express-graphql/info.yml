@@ -1,8 +1,8 @@
 name: express-graphql
 website: https://github.com/graphql/express-graphql
-version: "0.11.0"
+version: "0.12.0"
 language: "javascript"
-language-version: "14.15.0"
+language-version: "16.6.2"
 bench-adjust: 0.5
 experimental: false
 post-format: graphql
